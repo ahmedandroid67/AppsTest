@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoTest Dashboard</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #0a0a0f;
+            --surface: #111118;
+            --surface2: #18181f;
+            --border: rgba(255, 255, 255, 0.07);
+            --border2: rgba(255, 255, 255, 0.12);
+            --text: #e8e8f0;
+            --muted: #6b6b80;
+            --accent: #7b6fff;
+
+            --critical: #ff4d6d;
+            --critical-bg: rgba(255, 77, 109, 0.10);
+            --critical-border: rgba(255, 77, 109, 0.25);
+
+            --warning: #ffab40;
+            --warning-bg: rgba(255, 171, 64, 0.10);
+            --warning-border: rgba(255, 171, 64, 0.25);
+
+            --low: #3ddc84;
+            --low-bg: rgba(61, 220, 132, 0.10);
+            --low-border: rgba(61, 220, 132, 0.25);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Syne', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* ── GRID NOISE BACKGROUND ── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(123, 111, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(123, 111, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ── HEADER ── */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(10, 10, 15, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 2.5rem;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--accent);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-icon svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .logo-text {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: #fff;
+        }
+
+        .logo-text span {
+            color: var(--accent);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .live-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--low);
+            background: var(--low-bg);
+            border: 1px solid var(--low-border);
+            border-radius: 20px;
+            padding: 4px 10px;
+        }
+
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--low);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(0.8);
+            }
+        }
+
+        .timestamp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        /* ── MAIN ── */
+        main {
+            position: relative;
+            z-index: 1;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 2.5rem 2.5rem 4rem;
+        }
+
+        /* ── PAGE TITLE ── */
+        .page-title {
+            margin-bottom: 2.5rem;
+        }
+
+        .page-title h1 {
+            font-size: clamp(28px, 4vw, 42px);
+            font-weight: 800;
+            letter-spacing: -1.5px;
+            line-height: 1.1;
+            color: #fff;
+        }
+
+        .page-title h1 em {
+            font-style: normal;
+            color: var(--accent);
+        }
+
+        .page-title p {
+            margin-top: 8px;
+            font-size: 14px;
+            color: var(--muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* ── STATS GRID ── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.25rem 1.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.2s, transform 0.2s;
+            cursor: default;
+        }
+
+        .stat-card:hover {
+            border-color: var(--border2);
+            transform: translateY(-2px);
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .stat-card.total::after {
+            background: var(--accent);
+        }
+
+        .stat-card.critical::after {
+            background: var(--critical);
+        }
+
+        .stat-card.warning::after {
+            background: var(--warning);
+        }
+
+        .stat-card.low::after {
+            background: var(--low);
+        }
+
+        .stat-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 8px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 800;
+            letter-spacing: -2px;
+            line-height: 1;
+            color: #fff;
+        }
+
+        .stat-card.critical .stat-value {
+            color: var(--critical);
+        }
+
+        .stat-card.warning .stat-value {
+            color: var(--warning);
+        }
+
+        .stat-card.low .stat-value {
+            color: var(--low);
+        }
+
+        .stat-sub {
+            margin-top: 6px;
+            font-size: 12px;
+            color: var(--muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* ── TOOLBAR ── */
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 8px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 5px;
+        }
+
+        .filter-btn {
+            padding: 7px 18px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Syne', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.18s;
+            background: transparent;
+            color: var(--muted);
+            letter-spacing: 0.2px;
+        }
+
+        .filter-btn:hover {
+            color: var(--text);
+            background: var(--surface2);
+        }
+
+        .filter-btn.active {
+            color: #fff;
+            background: var(--surface2);
+        }
+
+        .filter-btn.active.all {
+            color: #fff;
+            background: rgba(123, 111, 255, 0.2);
+        }
+
+        .filter-btn.active.critical {
+            color: var(--critical);
+            background: var(--critical-bg);
+        }
+
+        .filter-btn.active.warning {
+            color: var(--warning);
+            background: var(--warning-bg);
+        }
+
+        .filter-btn.active.low {
+            color: var(--low);
+            background: var(--low-bg);
+        }
+
+        .count-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 9px;
+            font-size: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            margin-left: 4px;
+            padding: 0 4px;
+            vertical-align: middle;
+        }
+
+        .filter-btn.critical .count-badge {
+            background: var(--critical-bg);
+            color: var(--critical);
+        }
+
+        .filter-btn.warning .count-badge {
+            background: var(--warning-bg);
+            color: var(--warning);
+        }
+
+        .filter-btn.low .count-badge {
+            background: var(--low-bg);
+            color: var(--low);
+        }
+
+        .sort-select {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-family: 'Syne', sans-serif;
+            font-size: 13px;
+            padding: 8px 14px;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .sort-select:hover {
+            border-color: var(--border2);
+        }
+
+        /* ── RESULT COUNT ── */
+        .result-info {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 1rem;
+        }
+
+        .result-info strong {
+            color: var(--text);
+        }
+
+        /* ── CARDS ── */
+        #report {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .card {
+            background: var(--surface);
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+            animation: fadeUp 0.35s ease both;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card:hover {
+            border-color: var(--border2);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .card.critical {
+            border-left: 3px solid var(--critical);
+        }
+
+        .card.warning {
+            border-left: 3px solid var(--warning);
+        }
+
+        .card.low {
+            border-left: 3px solid var(--low);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.25rem;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .card-header:hover .card-url {
+            color: var(--accent);
+        }
+
+        .card-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .sev-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .critical .sev-dot {
+            background: var(--critical);
+            box-shadow: 0 0 6px var(--critical);
+        }
+
+        .warning .sev-dot {
+            background: var(--warning);
+            box-shadow: 0 0 6px var(--warning);
+        }
+
+        .low .sev-dot {
+            background: var(--low);
+            box-shadow: 0 0 6px var(--low);
+        }
+
+        .card-url {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: color 0.15s;
+        }
+
+        .card-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+            margin-left: 12px;
+        }
+
+        .pill {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .pill.critical {
+            background: var(--critical-bg);
+            color: var(--critical);
+            border: 1px solid var(--critical-border);
+        }
+
+        .pill.warning {
+            background: var(--warning-bg);
+            color: var(--warning);
+            border: 1px solid var(--warning-border);
+        }
+
+        .pill.low {
+            background: var(--low-bg);
+            color: var(--low);
+            border: 1px solid var(--low-border);
+        }
+
+        .load-chip {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--muted);
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 3px 8px;
+        }
+
+        .chevron {
+            width: 16px;
+            height: 16px;
+            color: var(--muted);
+            transition: transform 0.2s;
+            flex-shrink: 0;
+        }
+
+        .card.open .chevron {
+            transform: rotate(180deg);
+        }
+
+        .card-body {
+            display: none;
+            padding: 0 1.25rem 1.25rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .card.open .card-body {
+            display: block;
+        }
+
+        .issues-list {
+            padding-top: 1rem;
+        }
+
+        .issues-title {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--muted);
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 8px;
+        }
+
+        .issue-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 0;
+            font-size: 13px;
+            color: var(--text);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .issue-item:last-child {
+            border-bottom: none;
+        }
+
+        .issue-item::before {
+            content: '';
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            background: var(--muted);
+        }
+
+        .no-issues {
+            font-size: 13px;
+            color: var(--low);
+            font-family: 'JetBrains Mono', monospace;
+            padding-top: 1rem;
+        }
+
+        .screenshots-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .screenshots-title {
+            width: 100%;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--muted);
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 4px;
+        }
+
+        .screenshot-thumb {
+            width: 160px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+
+        .empty-state {
+            text-align: center;
+            padding: 5rem 2rem;
+            color: var(--muted);
+        }
+
+        .empty-state svg {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 1rem;
+            display: block;
+            opacity: 0.3;
+        }
+
+        .empty-state p {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 2rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--muted);
+            border-top: 1px solid var(--border);
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 768px) {
+            header {
+                padding: 0 1.25rem;
+            }
+
+            main {
+                padding: 1.5rem 1.25rem 3rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .timestamp {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .filter-group {
+                flex-wrap: wrap;
+            }
+
+            .toolbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        /* ── STAGGER ANIMATION ── */
+        #report .card:nth-child(1) {
+            animation-delay: 0.00s;
+        }
+
+        #report .card:nth-child(2) {
+            animation-delay: 0.04s;
+        }
+
+        #report .card:nth-child(3) {
+            animation-delay: 0.08s;
+        }
+
+        #report .card:nth-child(4) {
+            animation-delay: 0.12s;
+        }
+
+        #report .card:nth-child(5) {
+            animation-delay: 0.16s;
+        }
+
+        #report .card:nth-child(6) {
+            animation-delay: 0.20s;
+        }
+
+        #report .card:nth-child(7) {
+            animation-delay: 0.24s;
+        }
+
+        #report .card:nth-child(8) {
+            animation-delay: 0.28s;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header>
+        <div class="logo">
+            <div class="logo-icon">
+                <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="2" width="6" height="6" rx="1.5" fill="white" />
+                    <rect x="10" y="2" width="6" height="6" rx="1.5" fill="white" opacity="0.6" />
+                    <rect x="2" y="10" width="6" height="6" rx="1.5" fill="white" opacity="0.6" />
+                    <rect x="10" y="10" width="6" height="6" rx="1.5" fill="white" opacity="0.3" />
+                </svg>
+            </div>
+            <span class="logo-text">Auto<em>Test</em></span>
+        </div>
+        <div class="header-right">
+            <span class="live-badge"><span class="live-dot"></span>Live</span>
+            <span class="timestamp" id="ts"></span>
+        </div>
+    </header>
+
+    <!-- MAIN -->
+    <main>
+
+        <div class="page-title">
+            <h1>Test <em>Report</em></h1>
+            <p id="run-meta">// loading report data...</p>
+        </div>
+
+        <!-- STATS -->
+        <div class="stats-grid">
+            <div class="stat-card total">
+                <div class="stat-label">Total Pages</div>
+                <div class="stat-value" id="total">—</div>
+                <div class="stat-sub">scanned</div>
+            </div>
+            <div class="stat-card critical">
+                <div class="stat-label">Critical</div>
+                <div class="stat-value" id="critical">—</div>
+                <div class="stat-sub">needs attention</div>
+            </div>
+            <div class="stat-card warning">
+                <div class="stat-label">Warning</div>
+                <div class="stat-value" id="warning">—</div>
+                <div class="stat-sub">review recommended</div>
+            </div>
+            <div class="stat-card low">
+                <div class="stat-label">Low</div>
+                <div class="stat-value" id="low">—</div>
+                <div class="stat-sub">minor issues</div>
+            </div>
+        </div>
+
+        <!-- TOOLBAR -->
+        <div class="toolbar">
+            <div class="filter-group">
+                <button class="filter-btn all active" onclick="setFilter('all', this)">All</button>
+                <button class="filter-btn critical" onclick="setFilter('critical', this)">
+                    Critical <span class="count-badge" id="badge-critical">0</span>
+                </button>
+                <button class="filter-btn warning" onclick="setFilter('warning', this)">
+                    Warning <span class="count-badge" id="badge-warning">0</span>
+                </button>
+                <button class="filter-btn low" onclick="setFilter('low', this)">
+                    Low <span class="count-badge" id="badge-low">0</span>
+                </button>
+            </div>
+            <select class="sort-select" onchange="applySort(this.value)" id="sort-select">
+                <option value="default">Sort: Default</option>
+                <option value="severity">Sort: Severity</option>
+                <option value="loadTime">Sort: Load Time</option>
+                <option value="issues">Sort: Issue Count</option>
+            </select>
+        </div>
+
+        <div class="result-info" id="result-info"></div>
+
+
+
+    <script>
+        /* ── TIMESTAMP ── */
+        function formatTime(d) {
+            return d.toLocaleTimeString('en-US', { hour12: false });
+        }
+        function formatFull(d) {
+            return d.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
+        }
+        const now = new Date();
+        document.getElementById('ts').textContent = formatTime(now);
+        document.getElementById('footer-ts').textContent = formatFull(now);
+        setInterval(() => {
+            document.getElementById('ts').textContent = formatTime(new Date());
+        }, 1000);
+
+        /* ── STATE ── */
+        let allData = [];
+        let currentFilter = 'all';
+        let currentSort = 'default';
+
+        /* ── DEMO DATA (used if report.json fails) ── */
+        const demoData = [
+            { url: 'https://example.com/', loadTime: 312, severity: 'low', issues: [] },
+            { url: 'https://example.com/about', loadTime: 580, severity: 'warning', issues: ['Console errors detected', 'Image missing alt attribute'] },
+            { url: 'https://example.com/checkout', loadTime: 2840, severity: 'critical', issues: ['XSS vulnerability in form input', 'HTTPS redirect missing', 'Broken payment script'] },
+            { url: 'https://example.com/login', loadTime: 490, severity: 'warning', issues: ['Autocomplete disabled on password field'] },
+            { url: 'https://example.com/products', loadTime: 1050, severity: 'critical', issues: ['JavaScript error on load', 'API timeout > 1000ms'] },
+            { url: 'https://example.com/blog', loadTime: 270, severity: 'low', issues: [] },
+            { url: 'https://example.com/contact', loadTime: 388, severity: 'low', issues: ['Form missing CSRF token'] },
+            { url: 'https://example.com/dashboard', loadTime: 720, severity: 'warning', issues: ['Unhandled promise rejection', 'Large DOM size: 3200 nodes'] },
+        ];
+
+        /* ── BOOTSTRAP ── */
+        fetch('report.json')
+            .then(r => r.json())
+            .then(init)
+            .catch(() => init(demoData));
+
+        function init(data) {
+            allData = data;
+            const c = data.filter(p => p.severity === 'critical').length;
+            const w = data.filter(p => p.severity === 'warning').length;
+            const l = data.filter(p => p.severity === 'low').length;
+
+            document.getElementById('total').textContent = data.length;
+            document.getElementById('critical').textContent = c;
+            document.getElementById('warning').textContent = w;
+            document.getElementById('low').textContent = l;
+
+            document.getElementById('badge-critical').textContent = c;
+            document.getElementById('badge-warning').textContent = w;
+            document.getElementById('badge-low').textContent = l;
+
+            document.getElementById('run-meta').textContent =
+                `// ${data.length} pages scanned · ${c} critical · ${w} warnings · ${l} low`;
+
+            render(data);
+        }
+
+        /* ── FILTER ── */
+        function setFilter(type, btn) {
+            currentFilter = type;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            applyView();
+        }
+
+        /* ── SORT ── */
+        function applySort(val) {
+            currentSort = val;
+            applyView();
+        }
+
+        /* ── COMBINED VIEW ── */
+        function applyView() {
+            let data = currentFilter === 'all'
+                ? [...allData]
+                : allData.filter(p => p.severity === currentFilter);
+
+            const sevOrder = { critical: 0, warning: 1, low: 2 };
+            if (currentSort === 'severity') {
+                data.sort((a, b) => (sevOrder[a.severity] ?? 3) - (sevOrder[b.severity] ?? 3));
+            } else if (currentSort === 'loadTime') {
+                data.sort((a, b) => b.loadTime - a.loadTime);
+            } else if (currentSort === 'issues') {
+                data.sort((a, b) => b.issues.length - a.issues.length);
+            }
+
+            render(data);
+        }
+
+        /* ── RENDER ── */
+        function render(data) {
+            const container = document.getElementById('report');
+            container.innerHTML = '';
+
+            document.getElementById('result-info').innerHTML =
+                `Showing <strong>${data.length}</strong> of <strong>${allData.length}</strong> results`;
+
+            if (!data.length) {
+                container.innerHTML = `
+        <div class="empty-state">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          <p>No results for this filter.</p>
+        </div>`;
+                return;
+            }
+
+            data.forEach((page, i) => {
+                const sev = page.severity || 'low';
+                const hasIssues = page.issues && page.issues.length > 0;
+                const hasScreenshots = page.screenshots && page.screenshots.length > 0;
+
+                const issuesHTML = hasIssues
+                    ? page.issues.map(iss => `<div class="issue-item">${esc(iss)}</div>`).join('')
+                    : `<div class="no-issues">✓ No issues detected</div>`;
+
+                const screenshotsHTML = hasScreenshots ? `
+        <div class="screenshots-grid">
+          <div class="screenshots-title">Screenshots</div>
+          ${page.screenshots.map(s => `<img class="screenshot-thumb" src="${esc(s)}" onclick="openImg('${esc(s)}')" alt="screenshot">`).join('')}
+        </div>` : '';
+
+                const card = document.createElement('div');
+                card.className = `card ${sev}`;
+                card.style.animationDelay = `${i * 0.04}s`;
+
+                card.innerHTML = `
+        <div class="card-header" onclick="toggleCard(this)">
+          <div class="card-left">
+            <span class="sev-dot"></span>
+            <span class="card-url">${esc(page.url)}</span>
+          </div>
+          <div class="card-right">
+            <span class="load-chip">${page.loadTime} ms</span>
+            <span class="pill ${sev}">${sev}</span>
+            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="issues-list">
+            <div class="issues-title">Issues (${page.issues ? page.issues.length : 0})</div>
+            ${issuesHTML}
+          </div>
+          ${screenshotsHTML}
+        </div>`;
+
+                container.appendChild(card);
+            });
+        }
+
+        /* ── TOGGLE ── */
+        function toggleCard(header) {
+            header.closest('.card').classList.toggle('open');
+        }
+
+
+        function esc(str) {
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+    </script>
+</body>
+
+</html>

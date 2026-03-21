@@ -1,6 +1,23 @@
 const { analyzeUI } = require('./uiAnalyzer');
+const fs = require('fs');
 
-async function clickButtons(page) {
+// 📸 Screenshot helper
+async function takeScreenshot(page, name) {
+    const dir = './reports/screenshots';
+
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+    }
+
+    const filePath = `${dir}/${Date.now()}-${name}.png`;
+
+    await page.screenshot({ path: filePath });
+
+    // important: return relative path for HTML
+    return filePath.replace('./reports/', '');
+}
+
+async function clickButtons(page, pageResult) {
     const buttons = await page.$$('button');
     const clickedTexts = new Set();
 
@@ -9,10 +26,7 @@ async function clickButtons(page) {
             let text = await btn.innerText();
             text = text.trim().toLowerCase();
 
-            // ⛔ Skip empty
             if (!text) continue;
-
-            // ⛔ Skip duplicates
             if (clickedTexts.has(text)) continue;
 
             // ⛔ Skip dangerous buttons
@@ -20,11 +34,23 @@ async function clickButtons(page) {
                 text.includes('logout') ||
                 text.includes('log out') ||
                 text.includes('sign out') ||
+                text.includes('signout') ||
+                text.includes('déconnexion') ||
+                text.includes('deconnexion') ||
+                text.includes('se déconnecter') ||
+                text.includes('deconnecter') ||
+                text.includes('disconnect') ||
                 text.includes('delete') ||
                 text.includes('remove') ||
+                text.includes('supprimer') ||
                 text.includes('quitter') ||
                 text.includes('light') ||
-                text.includes('dark')
+                text.includes('dark') ||
+                text.includes('se connecter') ||
+                text.includes('login') ||
+                text.includes('connexion') ||
+                text.includes('change password') ||
+                text.includes('modifier le mot de passe')
             ) {
                 console.log('⛔ Skipping button:', text);
                 continue;
@@ -33,7 +59,7 @@ async function clickButtons(page) {
             const isVisible = await btn.isVisible();
             if (!isVisible) continue;
 
-            // 🤖 AUTO-FILL inputs before submitting
+            // 🤖 Auto-fill forms
             if (
                 ['enregistrer', 'confirmer', 'ajouter', 'créer', 'submit', 'valider', 'mettre à jour']
                     .some(k => text.includes(k))
@@ -49,36 +75,35 @@ async function clickButtons(page) {
                         const value = await input.inputValue();
 
                         if (!value && type !== 'checkbox' && type !== 'radio') {
-                            await input.fill('Test Auto');
+                            await input.fill('TestAuto');
                         }
-                    } catch (e) { }
+                    } catch { }
                 }
             }
 
-            // 🧠 BEFORE STATE
             const beforeUrl = page.url();
 
-            console.log('👉 Clicking button:', text);
-
+            console.log('👉 Clicking:', text);
             clickedTexts.add(text);
 
             await btn.click({ timeout: 5000 });
-
-            // wait for UI updates / navigation
             await page.waitForTimeout(2000);
 
-            // 🧠 AFTER STATE
             const afterUrl = page.url();
 
             // 🔍 UI ANALYSIS
             const { errors, successes } = await analyzeUI(page);
 
             if (errors.length > 0) {
-                console.log('❌ UI Errors detected:', errors.join(', '));
+                console.log('❌ UI Errors:', errors.join(', '));
+
+                const screenshot = await takeScreenshot(page, 'ui-error');
+                pageResult.screenshots.push(screenshot);
+                pageResult.issues.push(...errors);
             }
 
             if (successes.length > 0) {
-                console.log('✅ Success detected:', successes.join(', '));
+                console.log('✅ Success:', successes.join(', '));
             }
 
             // 🧠 Expected behavior
@@ -93,25 +118,33 @@ async function clickButtons(page) {
                 text.includes('continuer') ||
                 text.includes('suivant');
 
-            // 🚨 SMART VALIDATION
+            // 🚨 VALIDATION
             if (beforeUrl === afterUrl) {
                 if (shouldNavigate) {
                     if (errors.length > 0) {
-                        console.log('⚠️ Form validation failed:', text);
+                        console.log('⚠️ Validation failed:', text);
+
+                        const screenshot = await takeScreenshot(page, 'validation-error');
+                        pageResult.screenshots.push(screenshot);
+                        pageResult.issues.push(`Validation failed: ${text}`);
                     } else if (successes.length > 0) {
-                        console.log('ℹ️ Action succeeded without navigation:', text);
+                        console.log('ℹ️ Success without navigation:', text);
                     } else {
                         console.log('❌ Possible broken action:', text);
+
+                        const screenshot = await takeScreenshot(page, 'broken-action');
+                        pageResult.screenshots.push(screenshot);
+                        pageResult.issues.push(`Broken action: ${text}`);
                     }
                 } else {
                     console.log('ℹ️ No navigation (normal):', text);
                 }
             } else {
-                console.log('✅ Navigation detected:', text);
+                console.log('✅ Navigation:', text);
             }
 
-        } catch (e) {
-            console.log('⚠️ Failed clicking button');
+        } catch {
+            console.log('⚠️ Click failed');
         }
     }
 }

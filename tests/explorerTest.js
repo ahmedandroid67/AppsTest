@@ -2,16 +2,15 @@ const { chromium } = require('playwright');
 const { getLinks } = require('../engine/explorer');
 const { clickButtons } = require('../engine/actions');
 const { measureLoad } = require('../engine/analyzer');
+const { addPageResult, saveReport } = require('../engine/reporter');
+const { analyzeUI } = require('../engine/uiAnalyzer');
 
-// ✅ BLOCKED PAGES / PATTERNS
-const BLOCKED_URLS = [
-    '/Medicaments'
-];
+// ✅ BLOCKED
+const BLOCKED_URLS = ['/Medicaments'];
 
-// ✅ Check if URL is blocked
 function isBlocked(url) {
     return (
-        BLOCKED_URLS.some(blocked => url.includes(blocked)) ||
+        BLOCKED_URLS.some(b => url.includes(b)) ||
         url.includes('Export') ||
         url.includes('handler=Export') ||
         url.endsWith('.pdf') ||
@@ -19,34 +18,41 @@ function isBlocked(url) {
     );
 }
 
-// ✅ Normalize URLs (remove query params like ?id=123)
 function normalizeUrl(url) {
     return url.split('?')[0];
 }
 
-// 🔐 Detect if user is logged out
+// 🔐 Detect logout
 async function isLoggedOut(page) {
-    return await page.$('#Input_Email') !== null;
+    return await page.locator('#Input_Email').isVisible().catch(() => false);
 }
 
-// 🔐 Perform login
+// 🔐 Login
 async function login(page) {
+    console.log('🔐 Logging in...');
+
     await page.goto('https://medisys.laaraichi.com/');
+
+    if (!(await page.locator('#Input_Email').isVisible().catch(() => false))) {
+        console.log('✅ Already logged in');
+        return;
+    }
 
     await page.fill('#Input_Email', 'medecin@gmail.com');
     await page.fill('#Input_Password', 'admin123');
 
-    await page.click('button[type=submit]');
-    await page.waitForLoadState('networkidle');
+    await Promise.all([
+        page.waitForNavigation({ waitUntil: 'networkidle' }),
+        page.click('button[type=submit]')
+    ]);
 
-    console.log('✅ Logged in');
+    console.log('✅ Login complete');
 }
 
 async function run() {
     const browser = await chromium.launch({ headless: false });
     const page = await browser.newPage();
 
-    // ✅ Initial login
     await login(page);
 
     const toVisit = ['https://medisys.laaraichi.com/'];
@@ -56,72 +62,76 @@ async function run() {
         const url = toVisit.shift();
         const normalizedUrl = normalizeUrl(url);
 
-        // ⛔ Skip blocked
-        if (isBlocked(url)) {
-            console.log('⛔ Skipping blocked:', url);
-            continue;
-        }
-
-        // ⛔ Skip visited
+        if (isBlocked(url)) continue;
         if (visited.has(normalizedUrl)) continue;
 
         console.log('🌐 Visiting:', url);
         visited.add(normalizedUrl);
 
-        // ✅ Measure + navigate (ONLY ONCE)
-        let loadTime;
-        try {
-            loadTime = await measureLoad(page, url);
-        } catch (err) {
-            console.log('❌ Failed to load:', url);
-            continue;
-        }
+        const pageResult = {
+            url,
+            loadTime: null,
+            issues: [],
+            severity: 'low'
+        };
+
+        let loadTime = await measureLoad(page, url);
 
         if (loadTime === -1) {
-            console.log('❌ Failed to load:', url);
+            pageResult.issues.push('Load failed');
+            pageResult.severity = 'critical';
+            addPageResult(pageResult);
             continue;
         }
 
-        console.log('⏱️ Load time:', loadTime, 'ms');
+        pageResult.loadTime = loadTime;
 
         if (loadTime > 5000) {
-            console.log('🐢 Slow page detected:', url);
+            pageResult.issues.push('Slow page');
+            pageResult.severity = 'warning';
         }
 
-        // 🤖 Perform actions
         try {
-            await clickButtons(page);
-        } catch (err) {
-            console.log('⚠️ Action error on page:', url);
+            pageResult.screenshots = [];
+            await clickButtons(page, pageResult);
+        } catch {
+            pageResult.issues.push('Action error');
         }
 
-        // 🔐 Check logout
         if (await isLoggedOut(page)) {
-            console.log('🔐 Detected logout! Re-logging in...');
+            console.log('🔐 Re-login triggered');
             await login(page);
+            pageResult.issues.push('Session lost');
+            pageResult.severity = 'critical';
+            addPageResult(pageResult);
             continue;
         }
 
-        // 🔗 Extract links
+        const { errors } = await analyzeUI(page);
+
+        if (errors.length > 0) {
+            pageResult.issues.push(...errors);
+            pageResult.severity = 'critical';
+        }
+
         let links = [];
         try {
             links = await getLinks(page);
-        } catch (err) {
-            console.log('⚠️ Failed to extract links from:', url);
+        } catch {
+            pageResult.issues.push('Link extraction failed');
         }
 
-        console.log('🔗 Found links:', links.length);
-
-        // ➕ Add new links
         for (const link of links) {
-            const normalizedLink = normalizeUrl(link);
-
-            if (!visited.has(normalizedLink) && !isBlocked(link)) {
+            const n = normalizeUrl(link);
+            if (!visited.has(n) && !isBlocked(link)) {
                 toVisit.push(link);
             }
         }
+
+        addPageResult(pageResult);
     }
 
+    saveReport();
     await browser.close();
 }
 
