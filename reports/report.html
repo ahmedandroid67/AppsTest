@@ -344,6 +344,35 @@
             background: var(--low-bg);
         }
 
+        .btn-destructive {
+            padding: 8px 16px;
+            background: var(--critical-bg);
+            color: var(--critical);
+            border: 1px solid var(--critical-border);
+            border-radius: 10px;
+            font-family: 'Syne', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-destructive:hover {
+            background: var(--critical);
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 77, 109, 0.2);
+        }
+
+        .btn-destructive:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .count-badge {
             display: inline-flex;
             align-items: center;
@@ -924,12 +953,20 @@
                     Low <span class="count-badge" id="badge-low">0</span>
                 </button>
             </div>
-            <select class="sort-select" onchange="applySort(this.value)" id="sort-select">
-                <option value="default">Sort: Default</option>
-                <option value="severity">Sort: Severity</option>
-                <option value="loadTime">Sort: Load Time</option>
-                <option value="issues">Sort: Issue Count</option>
-            </select>
+            <div class="header-right">
+                <select id="sort" class="sort-select" onchange="setSort(this.value)">
+                    <option value="default">Sort: Default</option>
+                    <option value="load">Sort: Slowest First</option>
+                    <option value="issues">Sort: Most Issues</option>
+                </select>
+
+                <button id="clear-btn" class="btn-destructive" onclick="clearAllData()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M3 6h18m-2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                    </svg>
+                    Clear All Data
+                </button>
+            </div>
         </div>
 
         <div class="result-info" id="result-info"></div>
@@ -1081,6 +1118,7 @@
                 const issuesHTML = hasIssues
                     ? page.issues.map(iss => `<div class="issue-item">${esc(iss)}</div>`).join('')
                     : `<div class="no-issues">✓ No issues detected</div>`;
+                const screenshotsJson = JSON.stringify(page.screenshots).replace(/"/g, '&quot;');
 
                 const screenshotsHTML = hasScreenshots ? `
         <div class="screenshots-grid">
@@ -1088,7 +1126,7 @@
           ${page.screenshots.map((s, idx) => `
   <img class="screenshot-thumb" 
        src="${esc(s)}" 
-       onclick="openScreenshots(event, ${i})" 
+       onclick="openScreenshots(event, ${screenshotsJson}, ${idx})" 
        alt="screenshot">
 `).join('')}
         </div>` : '';
@@ -1109,7 +1147,7 @@
   ${hasScreenshots ? `
 <span class="img-icon" 
         title="${page.screenshots.length} screenshots"
-        onclick="openScreenshots(event, ${i})">
+        onclick="openScreenshots(event, ${screenshotsJson}, 0)">
 
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4l2-2h6l2 2h4a2 2 0 0 1 2 2z"/>
@@ -1140,6 +1178,39 @@
             });
         }
 
+        /* ── ACTIONS ── */
+        async function clearAllData() {
+            if (!allData || allData.length === 0) return;
+
+            if (!confirm('🚨 Are you sure? This will delete all report data and screenshots permanently.')) {
+                return;
+            }
+
+            const btn = document.getElementById('clear-btn');
+            const originalText = btn.innerHTML;
+
+            try {
+                btn.disabled = true;
+                btn.innerHTML = 'Clearing...';
+
+                const res = await fetch('/delete-all', { method: 'POST' });
+                const result = await res.json();
+
+                if (result.success) {
+                    allData = [];
+                    init([]); // Re-render empty state
+                } else {
+                    alert('❌ Failed to clear data.');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('❌ Error connecting to server.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+
         /* ── TOGGLE ── */
         function toggleCard(header) {
             header.closest('.card').classList.toggle('open');
@@ -1150,16 +1221,14 @@
         let currentScreenshots = [];
         let currentIndex = 0;
 
-        // 🚀 OPEN GALLERY FROM ICON
-        function openScreenshots(event, index) {
-            event.stopPropagation();
+        // 🚀 OPEN GALLERY
+        function openScreenshots(event, screenshots, startIndex = 0) {
+            if (event) event.stopPropagation();
 
-            const page = allData[index];
+            if (!screenshots || screenshots.length === 0) return;
 
-            if (!page.screenshots || page.screenshots.length === 0) return;
-
-            currentScreenshots = page.screenshots;
-            currentIndex = 0;
+            currentScreenshots = screenshots;
+            currentIndex = startIndex;
 
             showImage();
         }
@@ -1168,6 +1237,8 @@
         function showImage() {
             const modal = document.getElementById('modal');
             const modalImg = document.getElementById('modal-img');
+
+            if (!currentScreenshots[currentIndex]) return;
 
             modalImg.src = currentScreenshots[currentIndex];
             modal.classList.add('open');

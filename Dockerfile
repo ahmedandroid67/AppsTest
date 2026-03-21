@@ -11,8 +11,8 @@ RUN npm install
 # Copy all project files
 COPY . .
 
-# Create reports and screenshots directory (to ensure correct permissions)
-RUN mkdir -p /app/reports/screenshots
+# Create reports and screenshots directory (ensuring an empty report.json exists)
+RUN mkdir -p /app/reports/screenshots && echo "[]" > /app/reports/report.json && chmod -R 777 /app/reports
 
 # Set environment variables
 ENV NODE_ENV=production

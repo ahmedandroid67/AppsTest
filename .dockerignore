@@ -1,8 +1,8 @@
 node_modules
 .git
 .gitignore
-reports
-screenshots
+reports/report.json
+reports/screenshots/
 Dockerfile
 docker-compose.yml
 .env

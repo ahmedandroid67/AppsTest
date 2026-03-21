@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 app.use(express.json());
@@ -31,6 +32,34 @@ app.post('/run', async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Failed to start test' });
+    }
+});
+
+// 🗑️ Delete all data endpoint
+app.post('/delete-all', async (req, res) => {
+    try {
+        const reportPath = path.join(__dirname, 'reports', 'report.json');
+        const screenshotsDir = path.join(__dirname, 'reports', 'screenshots');
+
+        // 1. Reset report.json
+        fs.writeFileSync(reportPath, '[]');
+
+        // 2. Clear screenshots folder
+        if (fs.existsSync(screenshotsDir)) {
+            const files = fs.readdirSync(screenshotsDir);
+            for (const file of files) {
+                const filePath = path.join(screenshotsDir, file);
+                if (fs.lstatSync(filePath).isFile()) {
+                    fs.unlinkSync(filePath);
+                }
+            }
+        }
+
+        console.log('🗑️ All data and screenshots cleared.');
+        res.json({ success: true });
+    } catch (err) {
+        console.error('❌ Failed to clear data:', err);
+        res.status(500).json({ error: 'Failed to clear data' });
     }
 });
 
