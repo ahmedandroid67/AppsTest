@@ -95,6 +95,7 @@
             font-weight: 800;
             background: linear-gradient(to right, #fff, #94a3b8);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 8px;
         }
@@ -269,11 +270,11 @@
             status.className = 'status-running';
 
             try {
-                const response = await fetch('http://localhost:3000/run', {
+                const response = await fetch('/run', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        url: document.getElementById('url').value,
+                        url: document.getElementById('url').value || 'https://medisys.laaraichi.com/',
                         email: document.getElementById('email').value,
                         password: document.getElementById('password').value
                     })

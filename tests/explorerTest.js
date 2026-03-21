@@ -5,7 +5,12 @@ const { measureLoad } = require('../engine/analyzer');
 const { addPageResult, saveReport } = require('../engine/reporter');
 const { analyzeUI } = require('../engine/uiAnalyzer');
 
-// ✅ BLOCKED
+// 🌐 Dynamic config (from UI via server)
+const BASE_URL = process.env.TEST_URL || 'https://medisys.laaraichi.com/';
+const EMAIL = process.env.TEST_EMAIL || 'medecin@gmail.com';
+const PASSWORD = process.env.TEST_PASSWORD || 'admin123';
+
+// 🚫 Block heavy / unwanted routes
 const BLOCKED_URLS = ['/Medicaments'];
 
 function isBlocked(url) {
@@ -27,19 +32,20 @@ async function isLoggedOut(page) {
     return await page.locator('#Input_Email').isVisible().catch(() => false);
 }
 
-// 🔐 Login
+// 🔐 Login function
 async function login(page) {
     console.log('🔐 Logging in...');
 
-    await page.goto('https://medisys.laaraichi.com/');
+    await page.goto(BASE_URL);
 
+    // Already logged in
     if (!(await page.locator('#Input_Email').isVisible().catch(() => false))) {
         console.log('✅ Already logged in');
         return;
     }
 
-    await page.fill('#Input_Email', 'medecin@gmail.com');
-    await page.fill('#Input_Password', 'admin123');
+    await page.fill('#Input_Email', EMAIL);
+    await page.fill('#Input_Password', PASSWORD);
 
     await Promise.all([
         page.waitForNavigation({ waitUntil: 'networkidle' }),
@@ -50,19 +56,25 @@ async function login(page) {
 }
 
 async function run() {
-    const browser = await chromium.launch({ headless: false });
+    const browser = await chromium.launch({ 
+        headless: process.env.HEADLESS !== 'false' 
+    });
     const page = await browser.newPage();
 
     await login(page);
 
-    const toVisit = ['https://medisys.laaraichi.com/'];
+    const toVisit = [BASE_URL];
     const visited = new Set();
 
     while (toVisit.length > 0) {
         const url = toVisit.shift();
         const normalizedUrl = normalizeUrl(url);
 
-        if (isBlocked(url)) continue;
+        if (isBlocked(url)) {
+            console.log('⛔ Skipping:', url);
+            continue;
+        }
+
         if (visited.has(normalizedUrl)) continue;
 
         console.log('🌐 Visiting:', url);
@@ -72,12 +84,15 @@ async function run() {
             url,
             loadTime: null,
             issues: [],
-            severity: 'low'
+            severity: 'low',
+            screenshots: []
         };
 
+        // ⏱ Measure load
         let loadTime = await measureLoad(page, url);
 
         if (loadTime === -1) {
+            console.log('❌ Load failed');
             pageResult.issues.push('Load failed');
             pageResult.severity = 'critical';
             addPageResult(pageResult);
@@ -86,20 +101,24 @@ async function run() {
 
         pageResult.loadTime = loadTime;
 
+        console.log('⏱️ Load:', loadTime, 'ms');
+
         if (loadTime > 5000) {
             pageResult.issues.push('Slow page');
             pageResult.severity = 'warning';
         }
 
+        // 🤖 Perform actions
         try {
-            pageResult.screenshots = [];
             await clickButtons(page, pageResult);
-        } catch {
+        } catch (err) {
+            console.log('⚠️ Action error');
             pageResult.issues.push('Action error');
         }
 
+        // 🔐 Check logout
         if (await isLoggedOut(page)) {
-            console.log('🔐 Re-login triggered');
+            console.log('🔐 Session lost → re-login');
             await login(page);
             pageResult.issues.push('Session lost');
             pageResult.severity = 'critical';
@@ -107,32 +126,49 @@ async function run() {
             continue;
         }
 
-        const { errors } = await analyzeUI(page);
+        // 🔍 Final UI analysis
+        try {
+            const { errors } = await analyzeUI(page);
 
-        if (errors.length > 0) {
-            pageResult.issues.push(...errors);
-            pageResult.severity = 'critical';
+            if (errors.length > 0) {
+                console.log('❌ UI errors detected');
+                pageResult.issues.push(...errors);
+                pageResult.severity = 'critical';
+            }
+        } catch {
+            console.log('⚠️ UI analysis failed');
         }
 
+        // 🔗 Extract links
         let links = [];
         try {
             links = await getLinks(page);
         } catch {
+            console.log('⚠️ Link extraction failed');
             pageResult.issues.push('Link extraction failed');
         }
 
+        console.log('🔗 Found links:', links.length);
+
         for (const link of links) {
-            const n = normalizeUrl(link);
-            if (!visited.has(n) && !isBlocked(link)) {
+            const normalizedLink = normalizeUrl(link);
+
+            if (!visited.has(normalizedLink) && !isBlocked(link)) {
                 toVisit.push(link);
             }
         }
 
+        // 📊 Save result
         addPageResult(pageResult);
     }
 
+    // 💾 Save final report
     saveReport();
+
     await browser.close();
+
+    console.log('✅ Test completed');
 }
 
+// 🚀 Run
 run();

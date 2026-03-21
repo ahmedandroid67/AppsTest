@@ -1,0 +1,18 @@
+services:
+  autotest-engine:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - HEADLESS=true
+      - TEST_URL=https://medisys.laaraichi.com/
+      - TEST_EMAIL=medecin@gmail.com
+      - TEST_PASSWORD=admin123
+    volumes:
+      - reports_data:/app/reports
+    restart: always
+
+volumes:
+  reports_data:
+    driver: local

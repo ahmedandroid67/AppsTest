@@ -1,117 +1,117 @@
 [
   {
     "url": "https://medisys.laaraichi.com/",
-    "loadTime": 809,
+    "loadTime": 769,
     "issues": [],
     "severity": "low",
     "screenshots": []
   },
   {
     "url": "https://medisys.laaraichi.com/Consultations",
-    "loadTime": 800,
+    "loadTime": 690,
     "issues": [],
     "severity": "low",
     "screenshots": []
   },
   {
     "url": "https://medisys.laaraichi.com/Patients",
-    "loadTime": 667,
+    "loadTime": 699,
     "issues": [],
     "severity": "low",
     "screenshots": []
   },
   {
     "url": "https://medisys.laaraichi.com/Rendezvous",
-    "loadTime": 683,
+    "loadTime": 679,
     "issues": [],
     "severity": "low",
     "screenshots": []
   },
   {
     "url": "https://medisys.laaraichi.com/Reports/Revenue",
-    "loadTime": 1118,
+    "loadTime": 959,
     "issues": [],
     "severity": "low",
     "screenshots": []
   },
   {
     "url": "https://medisys.laaraichi.com/Reports/Statistics",
-    "loadTime": 750,
+    "loadTime": 728,
     "issues": [],
     "severity": "low",
     "screenshots": []
   },
   {
     "url": "https://medisys.laaraichi.com/Employers",
-    "loadTime": 665,
+    "loadTime": 671,
     "issues": [],
     "severity": "low",
     "screenshots": []
   },
   {
     "url": "https://medisys.laaraichi.com/services",
-    "loadTime": 670,
+    "loadTime": 659,
     "issues": [],
     "severity": "low",
     "screenshots": []
   },
   {
     "url": "https://medisys.laaraichi.com/Stock",
-    "loadTime": 689,
+    "loadTime": 685,
     "issues": [],
     "severity": "low",
     "screenshots": []
   },
   {
     "url": "https://medisys.laaraichi.com/Settings/Cabinet",
-    "loadTime": 664,
+    "loadTime": 699,
     "issues": [
       "Broken action: enregistrer les informations"
     ],
     "severity": "low",
     "screenshots": [
-      "screenshots/1774102000362-broken-action.png"
+      "screenshots/1774103201064-broken-action.png"
     ]
   },
   {
     "url": "https://medisys.laaraichi.com/Consultations/Edit/2",
-    "loadTime": 1123,
+    "loadTime": 1289,
     "issues": [],
     "severity": "low",
     "screenshots": []
   },
   {
     "url": "https://medisys.laaraichi.com/Consultations/Create",
-    "loadTime": 1007,
+    "loadTime": 740,
     "issues": [],
     "severity": "low",
     "screenshots": []
   },
   {
     "url": "https://medisys.laaraichi.com/Patients/Create",
-    "loadTime": 682,
+    "loadTime": 686,
     "issues": [
       "Broken action: enregistrer le patient"
     ],
     "severity": "low",
     "screenshots": [
-      "screenshots/1774102027971-broken-action.png"
+      "screenshots/1774103219503-broken-action.png"
     ]
   },
   {
     "url": "https://medisys.laaraichi.com/Patients/Edit?id=1",
-    "loadTime": 714,
+    "loadTime": 669,
     "issues": [
       "Broken action: enregistrer les modifications"
     ],
     "severity": "low",
     "screenshots": [
-      "screenshots/1774102031056-broken-action.png"
+      "screenshots/1774103222635-broken-action.png"
     ]
   },
   {
     "url": "https://medisys.laaraichi.com/Rendezvous/Create",
-    "loadTime": 684,
+    "loadTime": 691,
     "issues": [
       "invalid",
       "Validation failed: confirmer le rendez-vous",
@@ -119,8 +119,8 @@
     ],
     "severity": "critical",
     "screenshots": [
-      "screenshots/1774102034161-ui-error.png",
-      "screenshots/1774102034258-validation-error.png"
+      "screenshots/1774103225779-ui-error.png",
+      "screenshots/1774103225868-validation-error.png"
     ]
   },
   {
@@ -133,13 +133,13 @@
     ],
     "severity": "critical",
     "screenshots": [
-      "screenshots/1774102037340-ui-error.png",
-      "screenshots/1774102037433-validation-error.png"
+      "screenshots/1774103228917-ui-error.png",
+      "screenshots/1774103229017-validation-error.png"
     ]
   },
   {
     "url": "https://medisys.laaraichi.com/Employers/Create",
-    "loadTime": 707,
+    "loadTime": 678,
     "issues": [
       "invalid",
       "Validation failed: enregistrer l'employé",
@@ -147,70 +147,70 @@
     ],
     "severity": "critical",
     "screenshots": [
-      "screenshots/1774102040617-ui-error.png",
-      "screenshots/1774102040709-validation-error.png"
+      "screenshots/1774103232297-ui-error.png",
+      "screenshots/1774103232422-validation-error.png"
     ]
   },
   {
     "url": "https://medisys.laaraichi.com/Employers/Edit?id=10",
-    "loadTime": 687,
+    "loadTime": 695,
     "issues": [],
     "severity": "low",
     "screenshots": []
   },
   {
     "url": "https://medisys.laaraichi.com/services/Create",
-    "loadTime": 639,
+    "loadTime": 643,
     "issues": [
       "Broken action: enregistrer"
     ],
     "severity": "low",
     "screenshots": [
-      "screenshots/1774102047038-broken-action.png"
+      "screenshots/1774103238991-broken-action.png"
     ]
   },
   {
     "url": "https://medisys.laaraichi.com/services/Edit/1",
-    "loadTime": 714,
+    "loadTime": 670,
     "issues": [],
     "severity": "low",
     "screenshots": []
   },
   {
     "url": "https://medisys.laaraichi.com/services/Edit/2",
-    "loadTime": 643,
+    "loadTime": 652,
     "issues": [],
     "severity": "low",
     "screenshots": []
   },
   {
     "url": "https://medisys.laaraichi.com/services/Edit/5",
-    "loadTime": 656,
+    "loadTime": 640,
     "issues": [],
     "severity": "low",
     "screenshots": []
   },
   {
     "url": "https://medisys.laaraichi.com/Stock/Create",
-    "loadTime": 652,
+    "loadTime": 654,
     "issues": [
       "Broken action: enregistrer"
     ],
     "severity": "low",
     "screenshots": [
-      "screenshots/1774102059364-broken-action.png"
+      "screenshots/1774103251370-broken-action.png"
     ]
   },
   {
     "url": "https://medisys.laaraichi.com/Stock/History",
-    "loadTime": 690,
+    "loadTime": 681,
     "issues": [],
     "severity": "low",
     "screenshots": []
   },
   {
     "url": "https://medisys.laaraichi.com/Stock/Edit?id=5",
-    "loadTime": 649,
+    "loadTime": 650,
     "issues": [],
     "severity": "low",
     "screenshots": []

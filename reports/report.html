@@ -645,7 +645,64 @@
             transition: all 0.2s;
         }
 
+        .screenshot-thumb:hover {
+            border-color: var(--accent);
+            transform: scale(1.03);
+        }
 
+        /* ── MODAL ── */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .modal.open {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            max-width: 95%;
+            max-height: 95%;
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .modal.open .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-img {
+            max-width: 100%;
+            max-height: 90vh;
+            border-radius: 12px;
+            border: 1px solid var(--border2);
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        /* ── EMPTY STATE ── */
         .empty-state {
             text-align: center;
             padding: 5rem 2rem;
@@ -743,6 +800,60 @@
         #report .card:nth-child(8) {
             animation-delay: 0.28s;
         }
+
+        .img-icon {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            margin-right: 6px;
+            cursor: pointer;
+            transition: transform 0.15s;
+        }
+
+        .img-icon:hover {
+            transform: scale(1.15);
+        }
+
+        /* 🔢 Badge */
+        .img-badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: var(--accent);
+            color: white;
+            font-size: 9px;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 1px 5px;
+            border-radius: 10px;
+        }
+
+        .nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            border: none;
+            color: white;
+            font-size: 24px;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 6px;
+            z-index: 10;
+        }
+
+        .nav-btn.prev {
+            left: -50px;
+        }
+
+        .nav-btn.next {
+            right: -50px;
+        }
+
+        .nav-btn:hover {
+            background: rgba(0, 0, 0, 0.8);
+        }
     </style>
 </head>
 
@@ -823,7 +934,25 @@
 
         <div class="result-info" id="result-info"></div>
 
+        <!-- REPORT -->
+        <div id="report"></div>
 
+    </main>
+
+    <!-- MODAL -->
+    <div id="modal" class="modal" onclick="closeGallery()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+
+            <button class="modal-close" onclick="closeGallery()">&times;</button>
+
+            <button class="nav-btn prev" onclick="prevImg()">❮</button>
+            <img id="modal-img" class="modal-img" src="" alt="screenshot">
+            <button class="nav-btn next" onclick="nextImg()">❯</button>
+
+        </div>
+    </div>
+
+    <footer>AutoTest Dashboard &mdash; v2.0 &mdash; results from <span id="footer-ts">—</span></footer>
 
     <script>
         /* ── TIMESTAMP ── */
@@ -845,23 +974,32 @@
         let currentFilter = 'all';
         let currentSort = 'default';
 
-        /* ── DEMO DATA (used if report.json fails) ── */
-        const demoData = [
-            { url: 'https://example.com/', loadTime: 312, severity: 'low', issues: [] },
-            { url: 'https://example.com/about', loadTime: 580, severity: 'warning', issues: ['Console errors detected', 'Image missing alt attribute'] },
-            { url: 'https://example.com/checkout', loadTime: 2840, severity: 'critical', issues: ['XSS vulnerability in form input', 'HTTPS redirect missing', 'Broken payment script'] },
-            { url: 'https://example.com/login', loadTime: 490, severity: 'warning', issues: ['Autocomplete disabled on password field'] },
-            { url: 'https://example.com/products', loadTime: 1050, severity: 'critical', issues: ['JavaScript error on load', 'API timeout > 1000ms'] },
-            { url: 'https://example.com/blog', loadTime: 270, severity: 'low', issues: [] },
-            { url: 'https://example.com/contact', loadTime: 388, severity: 'low', issues: ['Form missing CSRF token'] },
-            { url: 'https://example.com/dashboard', loadTime: 720, severity: 'warning', issues: ['Unhandled promise rejection', 'Large DOM size: 3200 nodes'] },
-        ];
-
         /* ── BOOTSTRAP ── */
+
+
         fetch('report.json')
-            .then(r => r.json())
+            .then(r => {
+                if (!r.ok) {
+                    throw new Error('HTTP ' + r.status + ' - report.json not found');
+                }
+                return r.json();
+            })
             .then(init)
-            .catch(() => init(demoData));
+            .catch(err => {
+                console.error('❌ Detailed Dashboard Error:', err);
+
+                document.getElementById('run-meta').textContent =
+                    '// ❌ Failed to load report.json';
+
+                document.getElementById('report').innerHTML = `
+            <div class="empty-state">
+                <p>❌ Could not load report.json</p>
+                <p style="margin-top:8px;font-size:12px;">
+                    Check server path or file location
+                </p>
+            </div>
+        `;
+            });
 
         function init(data) {
             allData = data;
@@ -947,7 +1085,12 @@
                 const screenshotsHTML = hasScreenshots ? `
         <div class="screenshots-grid">
           <div class="screenshots-title">Screenshots</div>
-          ${page.screenshots.map(s => `<img class="screenshot-thumb" src="${esc(s)}" onclick="openImg('${esc(s)}')" alt="screenshot">`).join('')}
+          ${page.screenshots.map((s, idx) => `
+  <img class="screenshot-thumb" 
+       src="${esc(s)}" 
+       onclick="openScreenshots(event, ${i})" 
+       alt="screenshot">
+`).join('')}
         </div>` : '';
 
                 const card = document.createElement('div');
@@ -961,12 +1104,29 @@
             <span class="card-url">${esc(page.url)}</span>
           </div>
           <div class="card-right">
-            <span class="load-chip">${page.loadTime} ms</span>
-            <span class="pill ${sev}">${sev}</span>
-            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="6 9 12 15 18 9"/>
-            </svg>
-          </div>
+  <span class="load-chip">${page.loadTime} ms</span>
+
+  ${hasScreenshots ? `
+<span class="img-icon" 
+        title="${page.screenshots.length} screenshots"
+        onclick="openScreenshots(event, ${i})">
+
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4l2-2h6l2 2h4a2 2 0 0 1 2 2z"/>
+      <circle cx="12" cy="13" r="4"/>
+    </svg>
+
+    <span class="img-badge">${page.screenshots.length}</span>
+  </span>
+
+  ` : ''}
+
+  <span class="pill ${sev}">${sev}</span>
+
+  <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <polyline points="6 9 12 15 18 9"/>
+  </svg>
+</div>
         </div>
         <div class="card-body">
           <div class="issues-list">
@@ -985,11 +1145,71 @@
             header.closest('.card').classList.toggle('open');
         }
 
+        /* ── IMAGE MODAL ── */
+        // 🧠 GALLERY STATE
+        let currentScreenshots = [];
+        let currentIndex = 0;
 
+        // 🚀 OPEN GALLERY FROM ICON
+        function openScreenshots(event, index) {
+            event.stopPropagation();
+
+            const page = allData[index];
+
+            if (!page.screenshots || page.screenshots.length === 0) return;
+
+            currentScreenshots = page.screenshots;
+            currentIndex = 0;
+
+            showImage();
+        }
+
+        // 🖼 SHOW IMAGE
+        function showImage() {
+            const modal = document.getElementById('modal');
+            const modalImg = document.getElementById('modal-img');
+
+            modalImg.src = currentScreenshots[currentIndex];
+            modal.classList.add('open');
+
+            document.body.style.overflow = 'hidden';
+        }
+
+        // ➡ NEXT
+        function nextImg() {
+            currentIndex = (currentIndex + 1) % currentScreenshots.length;
+            showImage();
+        }
+
+        // ⬅ PREVIOUS
+        function prevImg() {
+            currentIndex = (currentIndex - 1 + currentScreenshots.length) % currentScreenshots.length;
+            showImage();
+        }
+
+        // ❌ CLOSE
+        function closeGallery() {
+            document.getElementById('modal').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        // 🎹 KEYBOARD SUPPORT
+        document.addEventListener('keydown', (e) => {
+            const modalOpen = document.getElementById('modal').classList.contains('open');
+
+            if (!modalOpen) return;
+
+            if (e.key === 'ArrowRight') nextImg();
+            if (e.key === 'ArrowLeft') prevImg();
+            if (e.key === 'Escape') closeGallery();
+        });
+
+        // 🛡️ ESCAPE HTML
         function esc(str) {
             return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
         }
     </script>
+
 </body>
 
 </html>
