@@ -1,7 +1,8 @@
+const { analyzeUI } = require('./uiAnalyzer');
+
 async function clickButtons(page) {
     const buttons = await page.$$('button');
     const clickedTexts = new Set();
-    const { analyzeUI } = require('./uiAnalyzer');
 
     for (const btn of buttons) {
         try {
@@ -32,13 +33,17 @@ async function clickButtons(page) {
             const isVisible = await btn.isVisible();
             if (!isVisible) continue;
 
-            // 🤖 AUTO-FILL inputs before clicking form buttons
-            if (['enregistrer', 'confirmer', 'ajouter', 'créer', 'submit', 'valider', 'mettre à jour'].some(k => text.includes(k))) {
+            // 🤖 AUTO-FILL inputs before submitting
+            if (
+                ['enregistrer', 'confirmer', 'ajouter', 'créer', 'submit', 'valider', 'mettre à jour']
+                    .some(k => text.includes(k))
+            ) {
                 const inputs = await page.$$('input:not([type="hidden"]), textarea, select');
+
                 for (const input of inputs) {
                     try {
-                        const isVisible = await input.isVisible();
-                        if (!isVisible) continue;
+                        const visible = await input.isVisible();
+                        if (!visible) continue;
 
                         const type = await input.getAttribute('type');
                         const value = await input.inputValue();
@@ -46,7 +51,7 @@ async function clickButtons(page) {
                         if (!value && type !== 'checkbox' && type !== 'radio') {
                             await input.fill('Test Auto');
                         }
-                    } catch (e) { /* ignore input errors */ }
+                    } catch (e) { }
                 }
             }
 
@@ -59,13 +64,24 @@ async function clickButtons(page) {
 
             await btn.click({ timeout: 5000 });
 
-            // wait for possible UI change or navigation
+            // wait for UI updates / navigation
             await page.waitForTimeout(2000);
 
             // 🧠 AFTER STATE
             const afterUrl = page.url();
 
-            // 🧠 Determine expected behavior
+            // 🔍 UI ANALYSIS
+            const { errors, successes } = await analyzeUI(page);
+
+            if (errors.length > 0) {
+                console.log('❌ UI Errors detected:', errors.join(', '));
+            }
+
+            if (successes.length > 0) {
+                console.log('✅ Success detected:', successes.join(', '));
+            }
+
+            // 🧠 Expected behavior
             const shouldNavigate =
                 text.includes('enregistrer') ||
                 text.includes('confirmer') ||
@@ -79,14 +95,13 @@ async function clickButtons(page) {
 
             // 🚨 SMART VALIDATION
             if (beforeUrl === afterUrl) {
-                // Check if there are validation error messages on page
-                const errorVisible = await page.locator('.text-danger, .error, .validation-summary-errors, [aria-invalid="true"]').first().isVisible().catch(() => false);
-
                 if (shouldNavigate) {
-                    if (errorVisible) {
-                        console.log('⚠️ Form validation failed (stayed on same page):', text);
+                    if (errors.length > 0) {
+                        console.log('⚠️ Form validation failed:', text);
+                    } else if (successes.length > 0) {
+                        console.log('ℹ️ Action succeeded without navigation:', text);
                     } else {
-                        console.log('❌ Possible broken action (no navigation & no errors):', text);
+                        console.log('❌ Possible broken action:', text);
                     }
                 } else {
                     console.log('ℹ️ No navigation (normal):', text);
@@ -96,7 +111,6 @@ async function clickButtons(page) {
             }
 
         } catch (e) {
-            // keep logs clean
             console.log('⚠️ Failed clicking button');
         }
     }
