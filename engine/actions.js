@@ -1,6 +1,7 @@
 async function clickButtons(page) {
     const buttons = await page.$$('button');
     const clickedTexts = new Set();
+    const { analyzeUI } = require('./uiAnalyzer');
 
     for (const btn of buttons) {
         try {
@@ -38,10 +39,10 @@ async function clickButtons(page) {
                     try {
                         const isVisible = await input.isVisible();
                         if (!isVisible) continue;
-                        
+
                         const type = await input.getAttribute('type');
                         const value = await input.inputValue();
-                        
+
                         if (!value && type !== 'checkbox' && type !== 'radio') {
                             await input.fill('Test Auto');
                         }
@@ -80,7 +81,7 @@ async function clickButtons(page) {
             if (beforeUrl === afterUrl) {
                 // Check if there are validation error messages on page
                 const errorVisible = await page.locator('.text-danger, .error, .validation-summary-errors, [aria-invalid="true"]').first().isVisible().catch(() => false);
-                
+
                 if (shouldNavigate) {
                     if (errorVisible) {
                         console.log('⚠️ Form validation failed (stayed on same page):', text);
