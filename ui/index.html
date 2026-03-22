@@ -282,10 +282,63 @@
         .job-timestamp { font-size: 0.65rem; color: var(--text-dim); margin-bottom: 4px; }
         .job-id { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 600; color: #fff; }
 
+        /* 💎 Premium Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 32px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transform: scale(0.9);
+            animation: modalScale 0.3s ease forwards;
+        }
+
+        @keyframes modalScale { to { transform: scale(1); } }
+
+        .modal-title { font-size: 1.25rem; font-weight: 800; margin-bottom: 12px; color: var(--error); }
+        .modal-text { color: var(--text-dim); font-size: 0.95rem; line-height: 1.5; margin-bottom: 24px; }
+        
+        .modal-actions { display: flex; gap: 12px; }
+        .modal-btn { flex: 1; padding: 12px; border-radius: 10px; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; border: none; }
+        .btn-cancel { background: rgba(255, 255, 255, 0.05); color: var(--text); }
+        .btn-confirm { background: var(--error); color: white; }
+        .btn-cancel:hover { background: rgba(255, 255, 255, 0.1); }
+        .btn-confirm:hover { background: #dc2626; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
+
     </style>
 </head>
 
 <body>
+
+    <!-- 💎 Delete Confirmation Modal -->
+    <div id="delete-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-title">Delete Report?</div>
+            <div class="modal-text">This action will permanently remove all screenshots and test data. This cannot be undone.</div>
+            <div class="modal-actions">
+                <button class="modal-btn btn-cancel" onclick="closeDeleteModal()">CANCEL</button>
+                <button class="modal-btn btn-confirm" onclick="confirmDelete()">DELETE</button>
+            </div>
+        </div>
+    </div>
 
     <!-- 📜 History Sidebar -->
     <div id="history-sidebar" class="history-sidebar">
@@ -506,13 +559,25 @@
         }
 
         async function deleteJob(id, event) {
-            event.stopPropagation(); // ✋ Don't open the report!
-            if (!confirm(`Are you sure you want to delete the report for ${id}?\nThis will permanently remove all screenshots and data.`)) return;
+            event.stopPropagation();
+            window.jobToDelete = id;
+            document.getElementById('delete-modal').style.display = 'flex';
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('delete-modal').style.display = 'none';
+            window.jobToDelete = null;
+        }
+
+        async function confirmDelete() {
+            const id = window.jobToDelete;
+            if (!id) return;
 
             try {
                 const res = await fetch(`/api/jobs/${id}`, { method: 'DELETE' });
                 if (res.ok) {
                     loadJobs();
+                    closeDeleteModal();
                 } else {
                     const data = await res.json();
                     alert("Delete failed: " + data.error);
