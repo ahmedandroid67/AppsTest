@@ -222,8 +222,18 @@ async function login(page) {
         throw err;
     }
 
+    // Simulate human interaction to bypass strict frontend frameworks
+    await emailField.click();
+    await page.waitForTimeout(200);
     await emailField.fill(EMAIL);
+    await emailField.press('Tab'); // Trigger blur/change events
+
+    await passField.click();
+    await page.waitForTimeout(200);
     await passField.fill(PASSWORD);
+    await passField.press('Tab'); // Trigger blur/change events
+    
+    await page.waitForTimeout(500);
 
     // ── Submit ───────────────────────────────────────────────
     console.log('🚀 Submitting login...');
