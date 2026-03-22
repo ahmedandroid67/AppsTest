@@ -1,10 +1,15 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const http = require('http');
+const { Server } = require('socket.io');
 const session = require('express-session');
-const { clearReport } = require('./engine/reporter');
+const { clearReport, saveReport } = require('./engine/reporter');
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
+
 app.use(express.json());
 
 // 🔐 Authentication Configuration
@@ -29,22 +34,19 @@ const requireAuth = (req, res, next) => {
     res.status(401).json({ error: 'Unauthorized' });
 };
 
-// 📁 Serve UI (Static files are public, dashboard logic is handled in JS)
+// 📁 Serve UI
 app.use('/', express.static(path.join(__dirname, 'ui')));
 
-// 📂 Protected Reports (Dashboard + Screenshots)
+// 📂 Protected Reports
 app.use('/reports', requireAuth, express.static(path.join(__dirname, 'reports')));
 
 // 🔑 --- AUTH API ---
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
-
     if (username === ADMIN_USER && password === ADMIN_PASS) {
         req.session.isAuthenticated = true;
-        console.log('✅ Login successful for:', username);
         res.json({ success: true });
     } else {
-        console.log('❌ Failed login attempt for:', username);
         res.status(401).json({ error: 'Invalid credentials' });
     }
 });
@@ -58,73 +60,135 @@ app.get('/api/auth-check', (req, res) => {
     res.json({ authenticated: !!(req.session && req.session.isAuthenticated) });
 });
 
-// 🚀 --- PROTECTED ENGINE API ---
-
-// Run test endpoint
-app.post('/run', requireAuth, async (req, res) => {
-    const { url, email, password } = req.body;
-
-    console.log('🚀 Starting test with:', url);
-
-    try {
-        // ⚡ Pass env variables to test
-        process.env.TEST_URL = url;
-        process.env.TEST_EMAIL = email;
-        process.env.TEST_PASSWORD = password;
-
-        // Reset report in memory
-        clearReport();
-
-        // Clear cache so script reruns
-        delete require.cache[require.resolve('./tests/explorerTest')];
-
-        const explorer = require('./tests/explorerTest');
+// 📊 --- JOB HISTORY API ---
+app.get('/api/jobs', requireAuth, (req, res) => {
+    const jobsPath = path.join(__dirname, 'reports', 'jobs');
+    if (!fs.existsSync(jobsPath)) return res.json([]);
+    
+    const jobs = fs.readdirSync(jobsPath)
+        .filter(f => fs.lstatSync(path.join(jobsPath, f)).isDirectory())
+        .map(id => {
+            const reportPath = path.join(jobsPath, id, 'report.json');
+            let data = {};
+            if (fs.existsSync(reportPath)) {
+                try { data = JSON.parse(fs.readFileSync(reportPath)); } catch {}
+            }
+            return { id, timestamp: id, pageCount: data.length || 0 };
+        })
+        .sort((a, b) => b.timestamp.localeCompare(a.timestamp));
         
-        // 🏁 Wait for test to actually finish
-        await explorer.run();
+    res.json(jobs);
+});
 
-        res.json({ status: 'completed' });
+// 🚀 --- ENGINE CORE ---
+
+// Real-time Logging Bridge
+const originalLog = console.log;
+const originalError = console.error;
+
+console.log = (...args) => {
+    originalLog(...args);
+    io.emit('engine-log', args.join(' '));
+};
+
+console.error = (...args) => {
+    originalError(...args);
+    io.emit('engine-log', '❌ ' + args.join(' '));
+};
+
+// --- ENGINE STATE ---
+let currentJob = null;
+
+app.get('/api/status', requireAuth, (req, res) => {
+    res.json(currentJob || { status: 'idle' });
+});
+
+function getDomain(url) {
+    try {
+        const domain = new URL(url || '').hostname;
+        return domain.replace(/^www\./, '') || 'unknown';
+    } catch (e) {
+        return 'unknown';
+    }
+}
+
+// Start test endpoint
+app.post('/run', requireAuth, async (req, res) => {
+    if (currentJob && currentJob.status === 'running') {
+        return res.status(400).json({ error: 'Engine is already running a test.' });
+    }
+
+    const { url, email, password } = req.body;
+    const domain = getDomain(url);
+    const jobId = `${Date.now()}-${domain}`;
+    
+    currentJob = { status: 'running', url, jobId, startTime: Date.now() };
+
+    console.log(`🚀 Starting test ${jobId} for: ${url}`);
+    
+    // 🔥 Return early to prevent HTTP Proxy/Gateway Timeouts
+    res.json({ status: 'started', jobId });
+
+    // 🚀 Execute in background
+    (async () => {
+        try {
+            io.emit('engine-status', { status: 'running', url, jobId });
+
+            process.env.TEST_URL = url;
+            process.env.TEST_EMAIL = email;
+            process.env.TEST_PASSWORD = password;
+            process.env.CURRENT_JOB_ID = jobId;
+
+            clearReport();
+            delete require.cache[require.resolve('./tests/explorerTest')];
+            const explorer = require('./tests/explorerTest');
+            
+            await explorer.run();
+            
+            saveReport(jobId);
+
+            console.log(`✅ Test ${jobId} completed successfully!`);
+            currentJob = { status: 'completed', jobId, lastRun: Date.now() };
+            io.emit('engine-status', currentJob);
+        } catch (err) {
+            console.error(err);
+            currentJob = { status: 'error', error: err.message, lastRun: Date.now() };
+            io.emit('engine-status', currentJob);
+        }
+    })();
+});
+
+app.delete('/api/jobs/:id', requireAuth, (req, res) => {
+    const { id } = req.params;
+    const jobPath = path.join(__dirname, 'reports', 'jobs', id);
+    
+    try {
+        if (fs.existsSync(jobPath)) {
+            fs.rmSync(jobPath, { recursive: true, force: true });
+            res.json({ success: true });
+        } else {
+            res.status(404).json({ error: 'Job not found' });
+        }
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Failed to start test' });
+        res.status(500).json({ error: 'Failed to delete job' });
     }
 });
 
-// 🗑️ Delete all data endpoint
 app.post('/delete-all', requireAuth, async (req, res) => {
     try {
-        const reportPath = path.join(__dirname, 'reports', 'report.json');
-        const screenshotsDir = path.join(__dirname, 'reports', 'screenshots');
-
-        // 1. Reset report.json
-        fs.writeFileSync(reportPath, '[]');
-        
-        // Also reset memory report
-        clearReport();
-
-        // 2. Clear screenshots folder
-        if (fs.existsSync(screenshotsDir)) {
-            const files = fs.readdirSync(screenshotsDir);
-            for (const file of files) {
-                const filePath = path.join(screenshotsDir, file);
-                if (fs.lstatSync(filePath).isFile()) {
-                    fs.unlinkSync(filePath);
-                }
-            }
+        const jobsPath = path.join(__dirname, 'reports', 'jobs');
+        if (fs.existsSync(jobsPath)) {
+            fs.rmSync(jobsPath, { recursive: true, force: true });
         }
-
-        console.log('🗑️ All data and screenshots cleared.');
         res.json({ success: true });
     } catch (err) {
-        console.error('❌ Failed to clear data:', err);
         res.status(500).json({ error: 'Failed to clear data' });
     }
 });
 
 // 🌐 Start server
-const server = app.listen(3000, () => {
+server.listen(3000, () => {
     console.log('🌐 Server running at http://localhost:3000');
 });
 
-// ⏳ Allow long-running requests for tests
 server.timeout = 0;

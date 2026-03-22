@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AutoTest Engine | Ultra-Performance Testing</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #6366f1;
@@ -16,6 +16,7 @@
             --text-dim: #94a3b8;
             --error: #ef4444;
             --success: #10b981;
+            --sidebar-bg: rgba(15, 23, 42, 0.95);
         }
 
         * {
@@ -50,29 +51,12 @@
             animation: pulse 15s infinite alternate;
         }
 
-        body::before {
-            background: var(--primary);
-            top: -10%;
-            left: -10%;
-        }
-
-        body::after {
-            background: #8b5cf6;
-            bottom: -10%;
-            right: -10%;
-            animation-delay: -7s;
-        }
+        body::before { background: var(--primary); top: -10%; left: -10%; }
+        body::after { background: #8b5cf6; bottom: -10%; right: -10%; animation-delay: -7s; }
 
         @keyframes pulse {
-            0% {
-                transform: scale(1);
-                opacity: 0.1;
-            }
-
-            100% {
-                transform: scale(1.2);
-                opacity: 0.2;
-            }
+            0% { transform: scale(1); opacity: 0.1; }
+            100% { transform: scale(1.2); opacity: 0.2; }
         }
 
         /* ✨ Glassmorphism Card */
@@ -87,28 +71,18 @@
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             transform: translateY(0);
             transition: all 0.3s ease;
-            display: none; /* Hidden by default, controlled by JS */
+            display: none;
+            z-index: 10;
         }
 
-        .container.active {
-            display: block;
-            animation: fadeIn 0.5s ease forwards;
-        }
+        .container.active { display: block; animation: fadeIn 0.5s ease forwards; }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .container:hover {
-            border-color: rgba(99, 102, 241, 0.3);
-            box-shadow: 0 0 30px rgba(99, 102, 241, 0.1);
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 32px;
-        }
+        header { text-align: center; margin-bottom: 32px; }
 
         h1 {
             font-size: 2rem;
@@ -120,15 +94,9 @@
             margin-bottom: 8px;
         }
 
-        p.subtitle {
-            color: var(--text-dim);
-            font-size: 0.95rem;
-        }
+        p.subtitle { color: var(--text-dim); font-size: 0.95rem; }
 
-        .input-group {
-            margin-bottom: 20px;
-            position: relative;
-        }
+        .input-group { margin-bottom: 20px; position: relative; }
 
         label {
             display: block;
@@ -181,15 +149,7 @@
             box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
         }
 
-        button:active {
-            transform: translateY(0);
-        }
-
-        button:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-            transform: none !important;
-        }
+        button:disabled { opacity: 0.7; cursor: not-allowed; transform: none !important; }
 
         #status, #login-status {
             text-align: center;
@@ -197,22 +157,12 @@
             font-size: 0.9rem;
             font-weight: 500;
             min-height: 20px;
-            transition: all 0.3s ease;
         }
 
-        .status-running {
-            color: var(--primary);
-        }
+        .status-running { color: var(--primary); }
+        .status-success { color: var(--success); }
+        .status-error { color: var(--error); }
 
-        .status-success {
-            color: var(--success);
-        }
-
-        .status-error {
-            color: var(--error);
-        }
-
-        /* 🌀 Loading Spinner */
         .spinner {
             display: none;
             width: 20px;
@@ -223,50 +173,127 @@
             animation: spin 0.8s linear infinite;
         }
 
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .footer-links { margin-top: 32px; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 24px; }
+        .footer-links a { color: var(--text-dim); text-decoration: none; font-size: 0.85rem; transition: color 0.2s ease; }
+        .footer-links a:hover { color: var(--primary); }
+
+        .logout-btn { width: auto; min-width: 100px; padding: 8px 16px; margin-top: 0; background: rgba(239, 68, 68, 0.1); color: var(--error); border: 1px solid rgba(239, 68, 68, 0.2); font-size: 0.8rem; }
+
+        /* 📟 Live Terminal */
+        .terminal-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 400px;
+            height: 250px;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: none;
+            flex-direction: column;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            z-index: 100;
         }
 
-        /* 📊 Reports Link */
-        .footer-links {
-            margin-top: 32px;
-            text-align: center;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            padding-top: 24px;
-        }
-
-        .footer-links a {
+        .terminal-header {
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.7rem;
+            font-weight: 800;
             color: var(--text-dim);
-            text-decoration: none;
-            font-size: 0.85rem;
-            transition: color 0.2s ease;
+            letter-spacing: 1px;
         }
 
-        .footer-links a:hover {
-            color: var(--primary);
+        .terminal-body {
+            flex: 1;
+            padding: 12px;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: #3ddc84;
+            line-height: 1.4;
         }
 
-        .logout-btn {
-            width: auto;
-            min-width: 100px;
-            padding: 8px 16px;
-            margin-top: 0;
+        .terminal-body div { padding-bottom: 4px; }
+
+        /* 📜 History Sidebar */
+        .history-sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 260px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 24px;
+            display: none;
+            flex-direction: column;
+            z-index: 50;
+            animation: slideIn 0.4s ease;
+        }
+
+        @keyframes slideIn { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+
+        .history-sidebar h3 { font-size: 0.8rem; font-weight: 800; color: var(--text-dim); margin-bottom: 24px; letter-spacing: 1px; }
+
+        .job-item {
+            padding: 12px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            margin-bottom: 12px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .job-item:hover { background: rgba(255, 255, 255, 0.07); border-color: var(--primary); }
+
+        .delete-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
             background: rgba(239, 68, 68, 0.1);
             color: var(--error);
             border: 1px solid rgba(239, 68, 68, 0.2);
-            font-size: 0.8rem;
+            border-radius: 6px;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.2s;
+            z-index: 5;
+            padding: 0;
+            margin: 0;
         }
 
-        .logout-btn:hover {
-            background: rgba(239, 68, 68, 0.2);
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1);
-        }
+        .job-item:hover .delete-btn { opacity: 1; }
+        .delete-btn:hover { background: var(--error); color: white; transform: scale(1.1); }
+
+        .job-timestamp { font-size: 0.65rem; color: var(--text-dim); margin-bottom: 4px; }
+        .job-id { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 600; color: #fff; }
+
     </style>
 </head>
 
 <body>
+
+    <!-- 📜 History Sidebar -->
+    <div id="history-sidebar" class="history-sidebar">
+        <h3>HISTORICAL ANALYSIS</h3>
+        <div id="jobs-list">
+            <!-- Jobs will be loaded here -->
+        </div>
+    </div>
 
     <!-- 🔐 Login Screen -->
     <div id="login-screen" class="container">
@@ -274,22 +301,18 @@
             <h1>🔐 Engine Access</h1>
             <p class="subtitle">Please sign in to continue</p>
         </header>
-
         <div class="input-group">
             <label for="admin-user">USERNAME</label>
             <input id="admin-user" type="text" placeholder="admin">
         </div>
-
         <div class="input-group">
             <label for="admin-pass">PASSWORD</label>
             <input id="admin-pass" type="password" placeholder="••••••••">
         </div>
-
         <button id="login-btn" onclick="login()">
             <div id="login-spinner" class="spinner"></div>
             <span id="login-text">SIGN IN</span>
         </button>
-
         <p id="login-status"></p>
     </div>
 
@@ -307,15 +330,13 @@
             <label for="url">TARGET APPLICATION URL</label>
             <input id="url" type="url" placeholder="https://example.com" value="">
         </div>
-
         <div class="input-group">
-            <label for="email">ADMIN EMAIL</label>
-            <input id="email" type="email" placeholder="admin@company.com" value="">
+            <label for="admin-email">ADMIN EMAIL</label>
+            <input id="admin-email" type="email" placeholder="admin@company.com" value="">
         </div>
-
         <div class="input-group">
-            <label for="password">ACCESS PASSWORD</label>
-            <input id="password" type="password" placeholder="••••••••" value="">
+            <label for="admin-password">ACCESS PASSWORD</label>
+            <input id="admin-password" type="password" placeholder="••••••••" value="">
         </div>
 
         <button id="start-btn" onclick="startTest()">
@@ -326,35 +347,101 @@
         <p id="status"></p>
 
         <div class="footer-links">
-            <a href="/reports/report.html" target="_blank">View Latest Analysis Report →</a>
+            <a href="/reports/report.html" target="_blank">View Current Report →</a>
         </div>
     </div>
 
+    <!-- 📟 Live Terminal -->
+    <div id="terminal-container" class="terminal-container">
+        <div class="terminal-header">
+            <span>DIAGNOSTIC LOGS</span>
+            <span id="terminal-job-id">IDLE</span>
+        </div>
+        <div id="terminal-body" class="terminal-body">
+            <div>> Waiting for engine start...</div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
     <script>
+        const socket = io();
+        const terminal = document.getElementById('terminal-body');
+        const terminalId = document.getElementById('terminal-job-id');
+
+        socket.on('engine-log', (log) => {
+            const div = document.createElement('div');
+            div.innerText = `> ${log}`;
+            terminal.appendChild(div);
+            terminal.scrollTop = terminal.scrollHeight;
+        });
+
+        socket.on('engine-status', (data) => {
+            syncUI(data);
+        });
+
+        function syncUI(data) {
+            const btn = document.getElementById('start-btn');
+            const spinner = document.getElementById('spinner');
+            const btnText = document.getElementById('btn-text');
+            const status = document.getElementById('status');
+
+            if (data.status === 'running') {
+                btn.disabled = true;
+                spinner.style.display = 'block';
+                btnText.innerText = 'ENGINE RUNNING...';
+                status.innerText = "Automation in progress...";
+                status.className = 'status-running';
+                document.getElementById('terminal-container').style.display = 'flex';
+                terminalId.innerText = data.jobId;
+            } else if (data.status === 'completed') {
+                btn.disabled = false;
+                spinner.style.display = 'none';
+                btnText.innerText = 'START NEW SESSION';
+                status.innerHTML = `📊 Report saved: <strong>${data.jobId}</strong><br>✅ Test completed successfully!`;
+                status.className = 'status-success';
+                terminalId.innerText = 'FINISHED';
+                loadJobs();
+            } else if (data.status === 'error') {
+                btn.disabled = false;
+                spinner.style.display = 'none';
+                btnText.innerText = 'START NEW SESSION';
+                status.innerText = "❌ Test failed: " + (data.error || "Unknown error");
+                status.className = 'status-error';
+            }
+        }
+
         // 🛡️ Auth Logic
         async function checkAuth() {
             try {
                 const response = await fetch('/api/auth-check');
                 const data = await response.json();
-                
-                if (data.authenticated) {
-                    showDashboard();
-                } else {
-                    showLogin();
+                if (data.authenticated) { 
+                    showDashboard(); 
+                    loadJobs();
+                    checkCurrentStatus();
                 }
-            } catch (err) {
-                showLogin();
-            }
+                else { showLogin(); }
+            } catch (err) { showLogin(); }
+        }
+
+        async function checkCurrentStatus() {
+            try {
+                const res = await fetch('/api/status');
+                const data = await res.json();
+                syncUI(data);
+            } catch (err) {}
         }
 
         function showLogin() {
             document.getElementById('login-screen').classList.add('active');
             document.getElementById('main-dashboard').classList.remove('active');
+            document.getElementById('history-sidebar').style.display = 'none';
         }
 
         function showDashboard() {
             document.getElementById('login-screen').classList.remove('active');
             document.getElementById('main-dashboard').classList.add('active');
+            document.getElementById('history-sidebar').style.display = 'flex';
         }
 
         async function login() {
@@ -362,18 +449,8 @@
             const pass = document.getElementById('admin-pass').value;
             const status = document.getElementById('login-status');
             const btn = document.getElementById('login-btn');
-            const spinner = document.getElementById('login-spinner');
-            const text = document.getElementById('login-text');
 
-            if (!user || !pass) {
-                status.innerText = "Please enter both fields.";
-                status.className = 'status-error';
-                return;
-            }
-
-            btn.disabled = true;
-            spinner.style.display = 'block';
-            text.innerText = 'AUTHENTICATING...';
+            if (!user || !pass) { status.innerText = "Fields required."; status.className = 'status-error'; return; }
 
             try {
                 const response = await fetch('/api/login', {
@@ -381,40 +458,73 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username: user, password: pass })
                 });
-
-                if (response.ok) {
-                    showDashboard();
-                } else {
-                    status.innerText = "Invalid username or password.";
-                    status.className = 'status-error';
+                if (response.ok) { 
+                    showDashboard(); 
+                    loadJobs();
+                    checkCurrentStatus();
                 }
-            } catch (err) {
-                status.innerText = "Connection error.";
-                status.className = 'status-error';
-            } finally {
-                btn.disabled = false;
-                spinner.style.display = 'none';
-                text.innerText = 'SIGN IN';
-            }
+                else { status.innerText = "Invalid credentials."; status.className = 'status-error'; }
+            } catch (err) { status.innerText = "Connection error."; status.className = 'status-error'; }
         }
 
-        async function logout() {
-            await fetch('/api/logout', { method: 'POST' });
-            window.location.reload();
+        async function logout() { await fetch('/api/logout', { method: 'POST' }); window.location.reload(); }
+
+        // 📜 History Logic
+        async function loadJobs() {
+            try {
+                const res = await fetch('/api/jobs');
+                if (!res.ok) return;
+                const jobs = await res.json();
+                const list = document.getElementById('jobs-list');
+                list.innerHTML = jobs.length ? '' : '<div style="font-size: 0.7rem; color: var(--text-dim);">No history yet.</div>';
+                
+                jobs.forEach(job => {
+                    const div = document.createElement('div');
+                    div.className = 'job-item';
+                    div.onclick = () => window.open(`/reports/report.html?job=${job.id}`, '_blank');
+                    
+                    let timestamp, siteName;
+                    if (job.id.startsWith('job-')) {
+                        timestamp = job.id.replace('job-', '');
+                        siteName = 'Legacy Job';
+                    } else {
+                        const parts = job.id.split('-');
+                        timestamp = parts[0];
+                        siteName = parts.slice(1).join('-');
+                    }
+
+                    const timeStr = new Date(parseInt(timestamp)).toLocaleString();
+                    div.innerHTML = `
+                        <button class="delete-btn" onclick="deleteJob('${job.id}', event)" title="Delete Report">×</button>
+                        <div class="job-timestamp">${timeStr}</div>
+                        <div class="job-id" style="color: var(--primary); font-size: 0.85rem; margin-bottom: 2px;">${siteName}</div>
+                        <div style="font-size: 0.6rem; color: var(--text-dim); opacity: 0.7;">${job.pageCount} pages · ${job.id}</div>
+                    `;
+                    list.appendChild(div);
+                });
+            } catch(e) {}
+        }
+
+        async function deleteJob(id, event) {
+            event.stopPropagation(); // ✋ Don't open the report!
+            if (!confirm(`Are you sure you want to delete the report for ${id}?\nThis will permanently remove all screenshots and data.`)) return;
+
+            try {
+                const res = await fetch(`/api/jobs/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    loadJobs();
+                } else {
+                    const data = await res.json();
+                    alert("Delete failed: " + data.error);
+                }
+            } catch (err) {
+                alert("Connection error.");
+            }
         }
 
         // 🚀 Engine Logic
         async function startTest() {
-            const btn = document.getElementById('start-btn');
-            const spinner = document.getElementById('spinner');
-            const btnText = document.getElementById('btn-text');
             const status = document.getElementById('status');
-
-            btn.disabled = true;
-            spinner.style.display = 'block';
-            btnText.innerText = 'ENGINE RUNNING...';
-            status.innerText = "Connecting to automation server...";
-            status.className = 'status-running';
 
             try {
                 const response = await fetch('/run', {
@@ -422,32 +532,26 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         url: document.getElementById('url').value || 'https://medisys.laaraichi.com/',
-                        email: document.getElementById('email').value,
-                        password: document.getElementById('password').value
+                        email: document.getElementById('admin-email').value,
+                        password: document.getElementById('admin-password').value
                     })
                 });
 
+                const data = await response.json();
                 if (response.ok) {
-                    status.innerHTML = "📊 Report saved to /reports/report.json<br>✅ Test completed successfully!";
-                    status.className = 'status-success';
+                    status.innerText = "Enqueued job: " + data.jobId;
+                    status.className = 'status-running';
                 } else {
-                    const data = await response.json();
-                    throw new Error(data.error || "Server rejected the request.");
+                    throw new Error(data.error || "Request failed.");
                 }
             } catch (err) {
-                status.innerText = "❌ Test failed: " + err.message;
+                status.innerText = "❌ Startup error: " + err.message;
                 status.className = 'status-error';
-            } finally {
-                btn.disabled = false;
-                spinner.style.display = 'none';
-                btnText.innerText = 'START NEW SESSION';
             }
         }
 
         // Initialize
         checkAuth();
     </script>
-
 </body>
-
 </html>

@@ -162,8 +162,8 @@ async function run() {
         addPageResult(pageResult);
     }
 
-    // 💾 Save final report
-    saveReport();
+    // 💾 Save final report with JobID
+    saveReport(process.env.CURRENT_JOB_ID || 'latest');
 
     await browser.close();
 
