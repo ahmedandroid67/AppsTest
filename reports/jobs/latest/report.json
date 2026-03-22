@@ -1,0 +1,144 @@
+[
+  {
+    "url": "https://app.gymadmin.club/",
+    "loadTime": 856,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://app.gymadmin.club/dashboard",
+    "loadTime": 830,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://app.gymadmin.club/attendance",
+    "loadTime": 1092,
+    "issues": [
+      "Possible broken action: enregistrer entrée"
+    ],
+    "severity": "low",
+    "screenshots": [
+      "jobs/latest/screenshots/1774199174167-broken-action.png"
+    ]
+  },
+  {
+    "url": "https://app.gymadmin.club/payments",
+    "loadTime": 783,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://app.gymadmin.club/members",
+    "loadTime": 1013,
+    "issues": [
+      "Possible broken action: ajouter un membre"
+    ],
+    "severity": "low",
+    "screenshots": [
+      "jobs/latest/screenshots/1774199193877-broken-action.png"
+    ]
+  },
+  {
+    "url": "https://app.gymadmin.club/trainers",
+    "loadTime": 796,
+    "issues": [
+      "Link extraction failed"
+    ],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://app.gymadmin.club/disciplines",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://app.gymadmin.club/classes",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://app.gymadmin.club/equipment",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://app.gymadmin.club/plans",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://app.gymadmin.club/pos",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://app.gymadmin.club/produits",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://app.gymadmin.club/categories",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://app.gymadmin.club/inventaire",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://app.gymadmin.club/ventes",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://app.gymadmin.club/settings",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  }
+]

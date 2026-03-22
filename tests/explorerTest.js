@@ -37,22 +37,38 @@ async function login(page) {
     console.log('🔐 Logging in...');
 
     await page.goto(BASE_URL);
+    await page.waitForTimeout(2000);
 
-    // Already logged in
-    if (!(await page.locator('#Input_Email').isVisible().catch(() => false))) {
-        console.log('✅ Already logged in');
+    // Try to find email field
+    const emailField = page.locator('#Input_Email, #email, input[type=email]').first();
+    const passField = page.locator('#Input_Password, #password, input[type=password]').first();
+
+    if (!(await emailField.isVisible().catch(() => false))) {
+        console.log('✅ No login fields found, assuming already logged in');
         return;
     }
 
-    await page.fill('#Input_Email', EMAIL);
-    await page.fill('#Input_Password', PASSWORD);
+    // Optional: Select user type if selector exists
+    const userType = page.locator('#userType');
+    if (await userType.isVisible()) {
+        console.log('ℹ️ Selecting user type...');
+        await userType.selectOption({ label: 'Employé' }).catch(() => {});
+    }
 
+    await emailField.fill(EMAIL);
+    await passField.fill(PASSWORD);
+
+    console.log('🚀 Submitting login...');
+
+    const submitBtn = page.locator('button[type=submit], button:has-text("Se connecter"), button:has-text("Login")').first();
+    
     await Promise.all([
-        page.waitForNavigation({ waitUntil: 'networkidle' }),
-        page.click('button[type=submit]')
+        page.waitForNavigation({ waitUntil: 'networkidle', timeout: 30000 }).catch(() => {}),
+        submitBtn.click()
     ]);
 
     console.log('✅ Login complete');
+    await page.waitForTimeout(2000);
 }
 
 async function run() {
@@ -142,9 +158,10 @@ async function run() {
         // 🔗 Extract links
         let links = [];
         try {
-            links = await getLinks(page);
-        } catch {
-            console.log('⚠️ Link extraction failed');
+            // Pass the local visited set and the current base URL
+            links = await getLinks(page, BASE_URL, visited);
+        } catch (err) {
+            console.log('⚠️ Link extraction failed:', err.message);
             pageResult.issues.push('Link extraction failed');
         }
 

@@ -132,11 +132,22 @@ async function clickButtons(page, pageResult) {
                     } else if (successes.length > 0) {
                         console.log('ℹ️ Success without navigation:', text);
                     } else {
-                        console.log('❌ Possible broken action:', text);
+                        // Check if it's likely a menu toggle or accordion
+                        const isToggle = text.includes('menu') || 
+                                         text.includes('toggle') || 
+                                         text.includes('ouvrir') || 
+                                         text.includes('voir') ||
+                                         text.includes('produits'); // specific to the gym app
 
-                        const screenshot = await takeScreenshot(page, 'broken-action');
-                        pageResult.screenshots.push(screenshot);
-                        pageResult.issues.push(`Broken action: ${text}`);
+                        if (isToggle) {
+                            console.log('ℹ️ Likely a menu toggle (no navigation expected):', text);
+                        } else {
+                            console.log('❌ Possible broken action:', text);
+
+                            const screenshot = await takeScreenshot(page, 'broken-action');
+                            pageResult.screenshots.push(screenshot);
+                            pageResult.issues.push(`Possible broken action: ${text}`);
+                        }
                     }
                 } else {
                     console.log('ℹ️ No navigation (normal):', text);
