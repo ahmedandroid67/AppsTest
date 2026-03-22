@@ -87,6 +87,17 @@
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             transform: translateY(0);
             transition: all 0.3s ease;
+            display: none; /* Hidden by default, controlled by JS */
+        }
+
+        .container.active {
+            display: block;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .container:hover {
@@ -180,7 +191,7 @@
             transform: none !important;
         }
 
-        #status {
+        #status, #login-status {
             text-align: center;
             margin-top: 24px;
             font-size: 0.9rem;
@@ -236,14 +247,59 @@
         .footer-links a:hover {
             color: var(--primary);
         }
+
+        .logout-btn {
+            width: auto;
+            min-width: 100px;
+            padding: 8px 16px;
+            margin-top: 0;
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            font-size: 0.8rem;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1);
+        }
     </style>
 </head>
 
 <body>
 
-    <div class="container">
+    <!-- 🔐 Login Screen -->
+    <div id="login-screen" class="container">
         <header>
-            <h1>🚀 AutoTest Engine</h1>
+            <h1>🔐 Engine Access</h1>
+            <p class="subtitle">Please sign in to continue</p>
+        </header>
+
+        <div class="input-group">
+            <label for="admin-user">USERNAME</label>
+            <input id="admin-user" type="text" placeholder="admin">
+        </div>
+
+        <div class="input-group">
+            <label for="admin-pass">PASSWORD</label>
+            <input id="admin-pass" type="password" placeholder="••••••••">
+        </div>
+
+        <button id="login-btn" onclick="login()">
+            <div id="login-spinner" class="spinner"></div>
+            <span id="login-text">SIGN IN</span>
+        </button>
+
+        <p id="login-status"></p>
+    </div>
+
+    <!-- 🚀 Main Dashboard -->
+    <div id="main-dashboard" class="container">
+        <header>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h1 style="margin-bottom: 0;">🚀 Engine</h1>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
             <p class="subtitle">Automated Web Exploration & Analysis</p>
         </header>
 
@@ -275,13 +331,85 @@
     </div>
 
     <script>
+        // 🛡️ Auth Logic
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/auth-check');
+                const data = await response.json();
+                
+                if (data.authenticated) {
+                    showDashboard();
+                } else {
+                    showLogin();
+                }
+            } catch (err) {
+                showLogin();
+            }
+        }
+
+        function showLogin() {
+            document.getElementById('login-screen').classList.add('active');
+            document.getElementById('main-dashboard').classList.remove('active');
+        }
+
+        function showDashboard() {
+            document.getElementById('login-screen').classList.remove('active');
+            document.getElementById('main-dashboard').classList.add('active');
+        }
+
+        async function login() {
+            const user = document.getElementById('admin-user').value;
+            const pass = document.getElementById('admin-pass').value;
+            const status = document.getElementById('login-status');
+            const btn = document.getElementById('login-btn');
+            const spinner = document.getElementById('login-spinner');
+            const text = document.getElementById('login-text');
+
+            if (!user || !pass) {
+                status.innerText = "Please enter both fields.";
+                status.className = 'status-error';
+                return;
+            }
+
+            btn.disabled = true;
+            spinner.style.display = 'block';
+            text.innerText = 'AUTHENTICATING...';
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: user, password: pass })
+                });
+
+                if (response.ok) {
+                    showDashboard();
+                } else {
+                    status.innerText = "Invalid username or password.";
+                    status.className = 'status-error';
+                }
+            } catch (err) {
+                status.innerText = "Connection error.";
+                status.className = 'status-error';
+            } finally {
+                btn.disabled = false;
+                spinner.style.display = 'none';
+                text.innerText = 'SIGN IN';
+            }
+        }
+
+        async function logout() {
+            await fetch('/api/logout', { method: 'POST' });
+            window.location.reload();
+        }
+
+        // 🚀 Engine Logic
         async function startTest() {
             const btn = document.getElementById('start-btn');
             const spinner = document.getElementById('spinner');
             const btnText = document.getElementById('btn-text');
             const status = document.getElementById('status');
 
-            // ⚡ UI State: Loading
             btn.disabled = true;
             spinner.style.display = 'block';
             btnText.innerText = 'ENGINE RUNNING...';
@@ -310,12 +438,14 @@
                 status.innerText = "❌ Test failed: " + err.message;
                 status.className = 'status-error';
             } finally {
-                // Return to ready state ONLY when finished
                 btn.disabled = false;
                 spinner.style.display = 'none';
                 btnText.innerText = 'START NEW SESSION';
             }
         }
+
+        // Initialize
+        checkAuth();
     </script>
 
 </body>

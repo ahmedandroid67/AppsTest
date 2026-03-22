@@ -1,19 +1,67 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const session = require('express-session');
 const { clearReport } = require('./engine/reporter');
 
 const app = express();
 app.use(express.json());
 
-// 📁 Serve UI (index.html)
+// 🔐 Authentication Configuration
+const ADMIN_USER = process.env.ENGINE_ADMIN_USER || 'admin';
+const ADMIN_PASS = process.env.ENGINE_ADMIN_PASS || 'admin123';
+
+app.use(session({
+    secret: 'autotest-engine-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { 
+        secure: false, // Set to true if using HTTPS
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
+}));
+
+// 🛡️ Authentication Middleware
+const requireAuth = (req, res, next) => {
+    if (req.session && req.session.isAuthenticated) {
+        return next();
+    }
+    res.status(401).json({ error: 'Unauthorized' });
+};
+
+// 📁 Serve UI (Static files are public, dashboard logic is handled in JS)
 app.use('/', express.static(path.join(__dirname, 'ui')));
 
-// 📁 Serve reports (dashboard + screenshots)
-app.use('/reports', express.static(path.join(__dirname, 'reports')));
+// 📂 Protected Reports (Dashboard + Screenshots)
+app.use('/reports', requireAuth, express.static(path.join(__dirname, 'reports')));
 
-// 🚀 Run test endpoint
-app.post('/run', async (req, res) => {
+// 🔑 --- AUTH API ---
+app.post('/api/login', (req, res) => {
+    const { username, password } = req.body;
+
+    if (username === ADMIN_USER && password === ADMIN_PASS) {
+        req.session.isAuthenticated = true;
+        console.log('✅ Login successful for:', username);
+        res.json({ success: true });
+    } else {
+        console.log('❌ Failed login attempt for:', username);
+        res.status(401).json({ error: 'Invalid credentials' });
+    }
+});
+
+app.post('/api/logout', (req, res) => {
+    req.session.destroy();
+    res.json({ success: true });
+});
+
+app.get('/api/auth-check', (req, res) => {
+    res.json({ authenticated: !!(req.session && req.session.isAuthenticated) });
+});
+
+// 🚀 --- PROTECTED ENGINE API ---
+
+// Run test endpoint
+app.post('/run', requireAuth, async (req, res) => {
     const { url, email, password } = req.body;
 
     console.log('🚀 Starting test with:', url);
@@ -43,7 +91,7 @@ app.post('/run', async (req, res) => {
 });
 
 // 🗑️ Delete all data endpoint
-app.post('/delete-all', async (req, res) => {
+app.post('/delete-all', requireAuth, async (req, res) => {
     try {
         const reportPath = path.join(__dirname, 'reports', 'report.json');
         const screenshotsDir = path.join(__dirname, 'reports', 'screenshots');
