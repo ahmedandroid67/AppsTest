@@ -1,0 +1,689 @@
+[
+  {
+    "url": "https://facturation.laaraichi.com/",
+    "loadTime": 989,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/dashboard",
+    "loadTime": 983,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/clients",
+    "loadTime": 959,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/fournisseurs",
+    "loadTime": 830,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/produits",
+    "loadTime": 1449,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/categories",
+    "loadTime": 879,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/entree_stock",
+    "loadTime": 809,
+    "issues": [
+      "Possible broken action: enregistrer l'entrée"
+    ],
+    "severity": "low",
+    "screenshots": [
+      "jobs/1774200291573-facturation.laaraichi.com/screenshots/1774200354021-broken-action.png"
+    ]
+  },
+  {
+    "url": "https://facturation.laaraichi.com/sortie_stock",
+    "loadTime": 842,
+    "issues": [
+      "erreur",
+      "Validation failed: enregistrer la sortie",
+      "erreur"
+    ],
+    "severity": "critical",
+    "screenshots": [
+      "jobs/1774200291573-facturation.laaraichi.com/screenshots/1774200387772-ui-error.png",
+      "jobs/1774200291573-facturation.laaraichi.com/screenshots/1774200387936-validation-error.png"
+    ]
+  },
+  {
+    "url": "https://facturation.laaraichi.com/historique_entree_sortie",
+    "loadTime": 1165,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/quotes",
+    "loadTime": 843,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/invoices",
+    "loadTime": 768,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/supplier-invoices",
+    "loadTime": 747,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/recurring-invoices",
+    "loadTime": 765,
+    "issues": [
+      "error"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/dashboard_financier",
+    "loadTime": 808,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/users",
+    "loadTime": 726,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/roles",
+    "loadTime": 829,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/company-settings",
+    "loadTime": 754,
+    "issues": [
+      "Possible broken action: enregistrer"
+    ],
+    "severity": "low",
+    "screenshots": [
+      "jobs/1774200291573-facturation.laaraichi.com/screenshots/1774200415508-broken-action.png"
+    ]
+  },
+  {
+    "url": "https://facturation.laaraichi.com/alerts",
+    "loadTime": 787,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/scanner-settings",
+    "loadTime": 755,
+    "issues": [
+      "erreur",
+      "Validation failed: ajouter le mapping",
+      "erreur",
+      "erreur",
+      "erreur"
+    ],
+    "severity": "critical",
+    "screenshots": [
+      "jobs/1774200291573-facturation.laaraichi.com/screenshots/1774200423839-ui-error.png",
+      "jobs/1774200291573-facturation.laaraichi.com/screenshots/1774200424002-validation-error.png",
+      "jobs/1774200291573-facturation.laaraichi.com/screenshots/1774200426285-ui-error.png",
+      "jobs/1774200291573-facturation.laaraichi.com/screenshots/1774200428580-ui-error.png"
+    ]
+  },
+  {
+    "url": "https://facturation.laaraichi.com/audit-logs",
+    "loadTime": 1115,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/database-backup",
+    "loadTime": 785,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/change-password",
+    "loadTime": 927,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/clients/add",
+    "loadTime": 948,
+    "issues": [
+      "invalid",
+      "Validation failed: enregistrer",
+      "invalid"
+    ],
+    "severity": "critical",
+    "screenshots": [
+      "jobs/1774200291573-facturation.laaraichi.com/screenshots/1774200460160-ui-error.png",
+      "jobs/1774200291573-facturation.laaraichi.com/screenshots/1774200460329-validation-error.png"
+    ]
+  },
+  {
+    "url": "https://facturation.laaraichi.com/clients/edit/6",
+    "loadTime": 805,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/clients/delete/6",
+    "loadTime": 724,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/clients/edit/5",
+    "loadTime": 731,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/clients/delete/5",
+    "loadTime": 771,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/clients/edit/4",
+    "loadTime": 776,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/clients/delete/4",
+    "loadTime": 790,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/clients/edit/1",
+    "loadTime": 703,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/fournisseurs/add",
+    "loadTime": 784,
+    "issues": [
+      "invalid",
+      "Validation failed: enregistrer",
+      "invalid"
+    ],
+    "severity": "critical",
+    "screenshots": [
+      "jobs/1774200291573-facturation.laaraichi.com/screenshots/1774200491463-ui-error.png",
+      "jobs/1774200291573-facturation.laaraichi.com/screenshots/1774200491664-validation-error.png"
+    ]
+  },
+  {
+    "url": "https://facturation.laaraichi.com/fournisseurs/edit?id=1",
+    "loadTime": 943,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/products/scan",
+    "loadTime": 723,
+    "issues": [
+      "error"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/products/export/excel",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/produits/add",
+    "loadTime": 985,
+    "issues": [
+      "Possible broken action: ajouter un fournisseur",
+      "Possible broken action: ajouter le produit"
+    ],
+    "severity": "low",
+    "screenshots": [
+      "jobs/1774200291573-facturation.laaraichi.com/screenshots/1774200502063-broken-action.png",
+      "jobs/1774200291573-facturation.laaraichi.com/screenshots/1774200504909-broken-action.png"
+    ]
+  },
+  {
+    "url": "https://facturation.laaraichi.com/produits/4",
+    "loadTime": 1063,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/produits/edit?id=4",
+    "loadTime": 948,
+    "issues": [
+      "Possible broken action: ajouter un fournisseur"
+    ],
+    "severity": "low",
+    "screenshots": [
+      "jobs/1774200291573-facturation.laaraichi.com/screenshots/1774200510313-broken-action.png"
+    ]
+  },
+  {
+    "url": "https://facturation.laaraichi.com/products/4/barcode",
+    "loadTime": 829,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/products/4/label",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/produits/4/mouvements",
+    "loadTime": 1533,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/produits/delete?id=4",
+    "loadTime": 1330,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/produits/2",
+    "loadTime": 808,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/products/2/barcode",
+    "loadTime": 633,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/products/2/label",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/produits/2/mouvements",
+    "loadTime": 800,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/produits/5",
+    "loadTime": 744,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/products/5/barcode",
+    "loadTime": 709,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/products/5/label",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/produits/5/mouvements",
+    "loadTime": 769,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/produits/3",
+    "loadTime": 1001,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/products/3/barcode",
+    "loadTime": 650,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/products/3/label",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/produits/3/mouvements",
+    "loadTime": 853,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/categories/add",
+    "loadTime": 732,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/categories/edit?id=1",
+    "loadTime": 862,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/quotes/export/excel",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/quotes/add",
+    "loadTime": 700,
+    "issues": [
+      "error"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/quotes/1",
+    "loadTime": 856,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/quotes/1/pdf",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/invoices/export/excel",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/invoices/export/csv",
+    "loadTime": 690,
+    "issues": [
+      "error"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/invoices/add",
+    "loadTime": 688,
+    "issues": [
+      "error"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/invoices/1",
+    "loadTime": 840,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/invoices/edit/1",
+    "loadTime": 763,
+    "issues": [
+      "error"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/invoices/1/pdf",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/supplier-invoices/add",
+    "loadTime": 702,
+    "issues": [
+      "error"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/users/add",
+    "loadTime": 730,
+    "issues": [
+      "Possible broken action: créer l'utilisateur"
+    ],
+    "severity": "low",
+    "screenshots": [
+      "jobs/1774200291573-facturation.laaraichi.com/screenshots/1774200548735-broken-action.png"
+    ]
+  },
+  {
+    "url": "https://facturation.laaraichi.com/users/edit/2",
+    "loadTime": 750,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/users/edit/1",
+    "loadTime": 728,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/roles/add",
+    "loadTime": 919,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/roles/edit/2",
+    "loadTime": 891,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/roles/edit/3",
+    "loadTime": 901,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/alerts/low-stock-preview",
+    "loadTime": 734,
+    "issues": [
+      "error"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/alerts/overdue-preview",
+    "loadTime": 771,
+    "issues": [
+      "error"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/audit-logs/export.csv?action=&entity_type=&username=&date_from=&date_to=",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/database-backup/download/factuweb_backup_20260322_172711.sql",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/database-backup/download/factuweb_backup_20260214_095348.json",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/database-backup/download/factuweb_backup_20260214_093223.json",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/database-backup/download/factuweb_backup_20260224_140446.sql",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/static/https://res.cloudinary.com/dq4pxupxb/image/upload/v1770972912/products/xcsqksjo3k1tbhlkjyhy.png",
+    "loadTime": 526,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/quotes/edit/1",
+    "loadTime": 682,
+    "issues": [
+      "error"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/payments/add/1",
+    "loadTime": 707,
+    "issues": [
+      "Possible broken action: enregistrer"
+    ],
+    "severity": "low",
+    "screenshots": [
+      "jobs/1774200291573-facturation.laaraichi.com/screenshots/1774200575668-broken-action.png"
+    ]
+  },
+  {
+    "url": "https://facturation.laaraichi.com/roles/edit/4",
+    "loadTime": 899,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  }
+]
