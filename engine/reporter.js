@@ -6,6 +6,10 @@ function addPageResult(data) {
     report.push(data);
 }
 
+function clearReport() {
+    report.length = 0;
+}
+
 function saveReport() {
     if (!fs.existsSync('./reports')) {
         fs.mkdirSync('./reports');
@@ -19,4 +23,4 @@ function saveReport() {
     console.log('📊 Report saved to /reports/report.json');
 }
 
-module.exports = { addPageResult, saveReport };
+module.exports = { addPageResult, saveReport, clearReport };

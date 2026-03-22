@@ -281,21 +281,20 @@
                 });
 
                 if (response.ok) {
-                    status.innerText = "🚀 Engine started successfully! Check console for real-time logs.";
+                    status.innerHTML = "📊 Report saved to /reports/report.json<br>✅ Test completed successfully!";
                     status.className = 'status-success';
                 } else {
-                    throw new Error("Server rejected the request.");
+                    const data = await response.json();
+                    throw new Error(data.error || "Server rejected the request.");
                 }
             } catch (err) {
-                status.innerText = "❌ Connection failed: " + err.message;
+                status.innerText = "❌ Test failed: " + err.message;
                 status.className = 'status-error';
             } finally {
-                // Return to ready state after some time or immediately
-                setTimeout(() => {
-                    btn.disabled = false;
-                    spinner.style.display = 'none';
-                    btnText.innerText = 'START NEW SESSION';
-                }, 3000);
+                // Return to ready state ONLY when finished
+                btn.disabled = false;
+                spinner.style.display = 'none';
+                btnText.innerText = 'START NEW SESSION';
             }
         }
     </script>

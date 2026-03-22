@@ -116,6 +116,7 @@ async function clickButtons(page, pageResult) {
                 text.includes('valider') ||
                 text.includes('mettre à jour') ||
                 text.includes('continuer') ||
+                text.includes('imprimer') ||
                 text.includes('suivant');
 
             // 🚨 VALIDATION

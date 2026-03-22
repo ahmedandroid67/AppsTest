@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const { clearReport } = require('./engine/reporter');
 
 const app = express();
 app.use(express.json());
@@ -23,12 +24,18 @@ app.post('/run', async (req, res) => {
         process.env.TEST_EMAIL = email;
         process.env.TEST_PASSWORD = password;
 
+        // Reset report in memory
+        clearReport();
+
         // Clear cache so script reruns
         delete require.cache[require.resolve('./tests/explorerTest')];
 
-        require('./tests/explorerTest');
+        const explorer = require('./tests/explorerTest');
+        
+        // 🏁 Wait for test to actually finish
+        await explorer.run();
 
-        res.json({ status: 'started' });
+        res.json({ status: 'completed' });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Failed to start test' });
@@ -43,6 +50,9 @@ app.post('/delete-all', async (req, res) => {
 
         // 1. Reset report.json
         fs.writeFileSync(reportPath, '[]');
+        
+        // Also reset memory report
+        clearReport();
 
         // 2. Clear screenshots folder
         if (fs.existsSync(screenshotsDir)) {
@@ -64,6 +74,9 @@ app.post('/delete-all', async (req, res) => {
 });
 
 // 🌐 Start server
-app.listen(3000, () => {
+const server = app.listen(3000, () => {
     console.log('🌐 Server running at http://localhost:3000');
 });
+
+// ⏳ Allow long-running requests for tests
+server.timeout = 0;

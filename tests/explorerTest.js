@@ -170,5 +170,9 @@ async function run() {
     console.log('✅ Test completed');
 }
 
+module.exports = { run };
+
 // 🚀 Run
-run();
+if (require.main === module) {
+    run();
+}
