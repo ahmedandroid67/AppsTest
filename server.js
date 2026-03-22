@@ -98,9 +98,22 @@ console.error = (...args) => {
 
 // --- ENGINE STATE ---
 let currentJob = null;
+let cancelRequested = false;
 
 app.get('/api/status', requireAuth, (req, res) => {
     res.json(currentJob || { status: 'idle' });
+});
+
+// 🛑 Cancel running scan
+app.post('/api/cancel', requireAuth, (req, res) => {
+    if (currentJob && currentJob.status === 'running') {
+        cancelRequested = true;
+        process.env.CANCEL_REQUESTED = 'true';
+        console.log('🛑 Cancel requested by user');
+        res.json({ success: true });
+    } else {
+        res.status(400).json({ error: 'No active scan to cancel' });
+    }
 });
 
 function getDomain(url) {
@@ -132,6 +145,8 @@ app.post('/run', requireAuth, async (req, res) => {
     // 🚀 Execute in background
     (async () => {
         try {
+            cancelRequested = false;
+            process.env.CANCEL_REQUESTED = 'false';
             io.emit('engine-status', { status: 'running', url, jobId });
 
             process.env.TEST_URL = url;
@@ -144,12 +159,18 @@ app.post('/run', requireAuth, async (req, res) => {
             const explorer = require('./tests/explorerTest');
             
             await explorer.run();
-            
-            saveReport(jobId);
 
-            console.log(`✅ Test ${jobId} completed successfully!`);
-            currentJob = { status: 'completed', jobId, lastRun: Date.now() };
-            io.emit('engine-status', currentJob);
+            if (cancelRequested) {
+                console.log(`🛑 Test ${jobId} was cancelled by user.`);
+                saveReport(jobId);
+                currentJob = { status: 'cancelled', jobId, lastRun: Date.now() };
+                io.emit('engine-status', currentJob);
+            } else {
+                saveReport(jobId);
+                console.log(`✅ Test ${jobId} completed successfully!`);
+                currentJob = { status: 'completed', jobId, lastRun: Date.now() };
+                io.emit('engine-status', currentJob);
+            }
         } catch (err) {
             console.error(err);
             currentJob = { status: 'error', error: err.message, lastRun: Date.now() };

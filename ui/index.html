@@ -323,6 +323,21 @@
         .btn-cancel:hover { background: rgba(255, 255, 255, 0.1); }
         .btn-confirm:hover { background: #dc2626; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
 
+        /* 🛑 Cancel button */
+        #cancel-btn {
+            display: none;
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            margin-top: 8px;
+        }
+        #cancel-btn:hover {
+            background: rgba(239, 68, 68, 0.25);
+            border-color: var(--error);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+        }
+
     </style>
 </head>
 
@@ -397,6 +412,10 @@
             <span id="btn-text">INITIALIZE ENGINE</span>
         </button>
 
+        <button id="cancel-btn" onclick="cancelScan()">
+            🛑 CANCEL SCAN
+        </button>
+
         <p id="status"></p>
 
         <div class="footer-links">
@@ -434,6 +453,7 @@
 
         function syncUI(data) {
             const btn = document.getElementById('start-btn');
+            const cancelBtn = document.getElementById('cancel-btn');
             const spinner = document.getElementById('spinner');
             const btnText = document.getElementById('btn-text');
             const status = document.getElementById('status');
@@ -444,20 +464,32 @@
                 btnText.innerText = 'ENGINE RUNNING...';
                 status.innerText = "Automation in progress...";
                 status.className = 'status-running';
+                cancelBtn.style.display = 'flex';
                 document.getElementById('terminal-container').style.display = 'flex';
                 terminalId.innerText = data.jobId;
             } else if (data.status === 'completed') {
                 btn.disabled = false;
                 spinner.style.display = 'none';
                 btnText.innerText = 'START NEW SESSION';
+                cancelBtn.style.display = 'none';
                 status.innerHTML = `📊 Report saved: <strong>${data.jobId}</strong><br>✅ Test completed successfully!`;
                 status.className = 'status-success';
                 terminalId.innerText = 'FINISHED';
+                loadJobs();
+            } else if (data.status === 'cancelled') {
+                btn.disabled = false;
+                spinner.style.display = 'none';
+                btnText.innerText = 'START NEW SESSION';
+                cancelBtn.style.display = 'none';
+                status.innerHTML = `🛑 Scan cancelled — partial report saved: <strong>${data.jobId}</strong>`;
+                status.className = 'status-error';
+                terminalId.innerText = 'CANCELLED';
                 loadJobs();
             } else if (data.status === 'error') {
                 btn.disabled = false;
                 spinner.style.display = 'none';
                 btnText.innerText = 'START NEW SESSION';
+                cancelBtn.style.display = 'none';
                 status.innerText = "❌ Test failed: " + (data.error || "Unknown error");
                 status.className = 'status-error';
             }
@@ -584,6 +616,19 @@
                 }
             } catch (err) {
                 alert("Connection error.");
+            }
+        }
+
+        // 🛑 Cancel running scan
+        async function cancelScan() {
+            const cancelBtn = document.getElementById('cancel-btn');
+            cancelBtn.disabled = true;
+            cancelBtn.innerText = '⏳ Stopping...';
+            try {
+                await fetch('/api/cancel', { method: 'POST' });
+            } catch (err) {
+                cancelBtn.disabled = false;
+                cancelBtn.innerText = '🛑 CANCEL SCAN';
             }
         }
 

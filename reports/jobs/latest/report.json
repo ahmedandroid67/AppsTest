@@ -1,11 +1,158 @@
 [
   {
     "url": "https://medisys.laaraichi.com",
-    "loadTime": 725,
+    "loadTime": 688,
     "issues": [
-      "Session recovery failed"
+      "Action error"
     ],
-    "severity": "critical",
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://medisys.laaraichi.com/Consultations",
+    "loadTime": 699,
+    "issues": [
+      "Action error"
+    ],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://medisys.laaraichi.com/Patients",
+    "loadTime": 711,
+    "issues": [
+      "Action error"
+    ],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://medisys.laaraichi.com/Rendezvous",
+    "loadTime": 680,
+    "issues": [
+      "Action error"
+    ],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://medisys.laaraichi.com/Reports/Revenue",
+    "loadTime": 780,
+    "issues": [
+      "Action error"
+    ],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://medisys.laaraichi.com/Reports/Statistics",
+    "loadTime": 830,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://medisys.laaraichi.com/Employers",
+    "loadTime": 706,
+    "issues": [
+      "Action error"
+    ],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://medisys.laaraichi.com/services",
+    "loadTime": 669,
+    "issues": [
+      "Action error"
+    ],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://medisys.laaraichi.com/Stock",
+    "loadTime": 703,
+    "issues": [
+      "Action error"
+    ],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://medisys.laaraichi.com/Settings/Cabinet",
+    "loadTime": 702,
+    "issues": [
+      "Possible broken action: enregistrer les informations"
+    ],
+    "severity": "low",
+    "screenshots": [
+      "jobs/latest/screenshots/1774202068666-broken-action.png"
+    ]
+  },
+  {
+    "url": "https://medisys.laaraichi.com/Rendezvous/Create",
+    "loadTime": 710,
+    "issues": [
+      "Action error"
+    ],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://medisys.laaraichi.com/Rendezvous/Edit?id=4",
+    "loadTime": 719,
+    "issues": [
+      "Action error"
+    ],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://medisys.laaraichi.com/Reports/Statistics#",
+    "loadTime": 795,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "http://laaraichi.com/",
+    "loadTime": 1468,
+    "issues": [],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://medisys.laaraichi.com/Stock/Create",
+    "loadTime": 833,
+    "issues": [
+      "Action error"
+    ],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://medisys.laaraichi.com/Stock/History",
+    "loadTime": 704,
+    "issues": [
+      "Action error"
+    ],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://medisys.laaraichi.com/Stock/Edit?id=5",
+    "loadTime": 668,
+    "issues": [
+      "Action error"
+    ],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://medisys.laaraichi.com/Settings/Cabinet#",
+    "loadTime": 688,
+    "issues": [],
+    "severity": "low",
     "screenshots": []
   }
 ]

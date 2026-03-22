@@ -262,9 +262,11 @@ async function login(page) {
 
     const errorLocator = page.locator(errorSelectors).first();
     if (await errorLocator.isVisible().catch(() => false)) {
-        const errorText = await errorLocator.innerText().catch(() => 'unknown error');
-        console.error('❌ Login failed — error detected:', errorText.trim());
-        throw new Error(`Login error: ${errorText.trim()}`);
+        const errorText = (await errorLocator.innerText().catch(() => '')).trim();
+        if (errorText.length > 0) {
+            console.error('❌ Login failed — error detected:', errorText);
+            throw new Error(`Login error: ${errorText}`);
+        }
     }
 
     // ── Post-login stabilisation ─────────────────────────────
@@ -293,6 +295,12 @@ async function run() {
     const visited = new Set();
 
     while (toVisit.length > 0) {
+        // 🛑 Check if user requested cancellation
+        if (process.env.CANCEL_REQUESTED === 'true') {
+            console.log('🛑 Scan cancelled — stopping exploration loop');
+            break;
+        }
+
         const url = toVisit.shift();
         const normalizedUrl = normalizeUrl(url);
 
