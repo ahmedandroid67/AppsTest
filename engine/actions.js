@@ -15,21 +15,21 @@ async function takeScreenshot(page, name) {
 
     // important: return relative path for HTML
     return filePath.replace('./reports/', '');
-}
-
-async function clickButtons(page, pageResult) {
-    const buttons = await page.$$('button');
+}async function clickButtons(page, pageResult) {
+    // 🖱️ Expanded element selection for buttons and menu toggles
+    const buttons = await page.$$('button, a.dropdown-toggle, a[role="button"], .btn');
     const clickedTexts = new Set();
+    const discoveredLinks = new Set();
 
     for (const btn of buttons) {
         try {
             let text = await btn.innerText();
             text = text.trim().toLowerCase();
 
-            if (!text) continue;
-            if (clickedTexts.has(text)) continue;
+            // Skip empty or already clicked
+            if (!text || clickedTexts.has(text)) continue;
 
-            // ⛔ Skip dangerous buttons
+            // ⛔ Skip dangerous or common non-action buttons
             if (
                 text.includes('logout') ||
                 text.includes('log out') ||
@@ -52,30 +52,27 @@ async function clickButtons(page, pageResult) {
                 text.includes('change password') ||
                 text.includes('modifier le mot de passe')
             ) {
-                console.log('⛔ Skipping button:', text);
+                console.log('⛔ Skipping:', text);
                 continue;
             }
 
             const isVisible = await btn.isVisible();
             if (!isVisible) continue;
 
-            // 🤖 Auto-fill forms
+            // 🤖 Auto-fill forms for submit-like buttons
             if (
                 ['enregistrer', 'confirmer', 'ajouter', 'créer', 'submit', 'valider', 'mettre à jour']
                     .some(k => text.includes(k))
             ) {
                 const inputs = await page.$$('input:not([type="hidden"]), textarea, select');
-
                 for (const input of inputs) {
                     try {
-                        const visible = await input.isVisible();
-                        if (!visible) continue;
-
-                        const type = await input.getAttribute('type');
-                        const value = await input.inputValue();
-
-                        if (!value && type !== 'checkbox' && type !== 'radio') {
-                            await input.fill('TestAuto');
+                        if (await input.isVisible()) {
+                            const type = await input.getAttribute('type');
+                            const value = await input.inputValue();
+                            if (!value && type !== 'checkbox' && type !== 'radio') {
+                                await input.fill('TestAuto');
+                            }
                         }
                     } catch { }
                 }
@@ -91,75 +88,55 @@ async function clickButtons(page, pageResult) {
 
             const afterUrl = page.url();
 
+            // 🔍 Discovery: Extract links immediately after click (for dropdowns)
+            const activeLinks = await page.$$eval('a', as => as.map(a => a.href));
+            activeLinks.forEach(l => discoveredLinks.add(l));
+
             // 🔍 UI ANALYSIS
             const { errors, successes } = await analyzeUI(page);
-
             if (errors.length > 0) {
                 console.log('❌ UI Errors:', errors.join(', '));
-
                 const screenshot = await takeScreenshot(page, 'ui-error');
                 pageResult.screenshots.push(screenshot);
                 pageResult.issues.push(...errors);
             }
 
-            if (successes.length > 0) {
-                console.log('✅ Success:', successes.join(', '));
-            }
-
-            // 🧠 Expected behavior
-            const shouldNavigate =
-                text.includes('enregistrer') ||
-                text.includes('confirmer') ||
-                text.includes('ajouter') ||
-                text.includes('créer') ||
-                text.includes('submit') ||
-                text.includes('valider') ||
-                text.includes('mettre à jour') ||
-                text.includes('continuer') ||
-                text.includes('imprimer') ||
-                text.includes('Imprimer') ||
-                text.includes('suivant');
-
-            // 🚨 VALIDATION
+            // 🚨 NAVIGATION VALIDATION
             if (beforeUrl === afterUrl) {
-                if (shouldNavigate) {
-                    if (errors.length > 0) {
-                        console.log('⚠️ Validation failed:', text);
+                const shouldNavigate = ['enregistrer', 'confirmer', 'ajouter', 'créer', 'submit', 'valider', 'mettre à jour']
+                    .some(k => text.includes(k));
 
-                        const screenshot = await takeScreenshot(page, 'validation-error');
-                        pageResult.screenshots.push(screenshot);
-                        pageResult.issues.push(`Validation failed: ${text}`);
-                    } else if (successes.length > 0) {
-                        console.log('ℹ️ Success without navigation:', text);
+                if (shouldNavigate && errors.length === 0 && successes.length === 0) {
+                    // Check if it's likely a menu toggle
+                    const isToggle = text.includes('menu') || 
+                                     text.includes('toggle') || 
+                                     text.includes('ouvrir') || 
+                                     text.includes('voir') ||
+                                     text.includes('produits') ||
+                                     text.includes('contacts') ||
+                                     text.includes('inventaire') ||
+                                     text.includes('facturation') ||
+                                     text.includes('admin');
+
+                    if (isToggle) {
+                        console.log('ℹ️ Likely a menu toggle:', text);
                     } else {
-                        // Check if it's likely a menu toggle or accordion
-                        const isToggle = text.includes('menu') || 
-                                         text.includes('toggle') || 
-                                         text.includes('ouvrir') || 
-                                         text.includes('voir') ||
-                                         text.includes('produits'); // specific to the gym app
-
-                        if (isToggle) {
-                            console.log('ℹ️ Likely a menu toggle (no navigation expected):', text);
-                        } else {
-                            console.log('❌ Possible broken action:', text);
-
-                            const screenshot = await takeScreenshot(page, 'broken-action');
-                            pageResult.screenshots.push(screenshot);
-                            pageResult.issues.push(`Possible broken action: ${text}`);
-                        }
+                        console.log('❌ Possible broken action:', text);
+                        const screenshot = await takeScreenshot(page, 'broken-action');
+                        pageResult.screenshots.push(screenshot);
+                        pageResult.issues.push(`Possible broken action: ${text}`);
                     }
-                } else {
-                    console.log('ℹ️ No navigation (normal):', text);
                 }
             } else {
                 console.log('✅ Navigation:', text);
             }
 
-        } catch {
-            console.log('⚠️ Click failed');
+        } catch (err) {
+            console.log('⚠️ Click failed:', text);
         }
     }
+
+    return Array.from(discoveredLinks);
 }
 
 module.exports = { clickButtons };

@@ -1,58 +1,52 @@
 [
   {
-    "url": "https://app.gymadmin.club/",
-    "loadTime": 856,
-    "issues": [],
-    "severity": "low",
-    "screenshots": []
-  },
-  {
-    "url": "https://app.gymadmin.club/dashboard",
-    "loadTime": 830,
-    "issues": [],
-    "severity": "low",
-    "screenshots": []
-  },
-  {
-    "url": "https://app.gymadmin.club/attendance",
-    "loadTime": 1092,
+    "url": "https://facturation.laaraichi.com/",
+    "loadTime": 840,
     "issues": [
-      "Possible broken action: enregistrer entrée"
+      "Action error"
     ],
     "severity": "low",
-    "screenshots": [
-      "jobs/latest/screenshots/1774199174167-broken-action.png"
-    ]
+    "screenshots": []
   },
   {
-    "url": "https://app.gymadmin.club/payments",
-    "loadTime": 783,
-    "issues": [],
+    "url": "https://facturation.laaraichi.com/dashboard",
+    "loadTime": 857,
+    "issues": [
+      "Action error"
+    ],
     "severity": "low",
     "screenshots": []
   },
   {
-    "url": "https://app.gymadmin.club/members",
-    "loadTime": 1013,
+    "url": "https://facturation.laaraichi.com/clients",
+    "loadTime": 798,
     "issues": [
-      "Possible broken action: ajouter un membre"
+      "Action error"
     ],
     "severity": "low",
-    "screenshots": [
-      "jobs/latest/screenshots/1774199193877-broken-action.png"
-    ]
+    "screenshots": []
   },
   {
-    "url": "https://app.gymadmin.club/trainers",
-    "loadTime": 796,
+    "url": "https://facturation.laaraichi.com/fournisseurs",
+    "loadTime": 738,
     "issues": [
+      "Action error"
+    ],
+    "severity": "low",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/produits",
+    "loadTime": 1513,
+    "issues": [
+      "Action error",
       "Link extraction failed"
     ],
     "severity": "low",
     "screenshots": []
   },
   {
-    "url": "https://app.gymadmin.club/disciplines",
+    "url": "https://facturation.laaraichi.com/categories",
     "loadTime": null,
     "issues": [
       "Load failed"
@@ -61,7 +55,7 @@
     "screenshots": []
   },
   {
-    "url": "https://app.gymadmin.club/classes",
+    "url": "https://facturation.laaraichi.com/entree_stock",
     "loadTime": null,
     "issues": [
       "Load failed"
@@ -70,7 +64,7 @@
     "screenshots": []
   },
   {
-    "url": "https://app.gymadmin.club/equipment",
+    "url": "https://facturation.laaraichi.com/sortie_stock",
     "loadTime": null,
     "issues": [
       "Load failed"
@@ -79,7 +73,7 @@
     "screenshots": []
   },
   {
-    "url": "https://app.gymadmin.club/plans",
+    "url": "https://facturation.laaraichi.com/historique_entree_sortie",
     "loadTime": null,
     "issues": [
       "Load failed"
@@ -88,7 +82,7 @@
     "screenshots": []
   },
   {
-    "url": "https://app.gymadmin.club/pos",
+    "url": "https://facturation.laaraichi.com/quotes",
     "loadTime": null,
     "issues": [
       "Load failed"
@@ -97,7 +91,7 @@
     "screenshots": []
   },
   {
-    "url": "https://app.gymadmin.club/produits",
+    "url": "https://facturation.laaraichi.com/invoices",
     "loadTime": null,
     "issues": [
       "Load failed"
@@ -106,7 +100,7 @@
     "screenshots": []
   },
   {
-    "url": "https://app.gymadmin.club/categories",
+    "url": "https://facturation.laaraichi.com/supplier-invoices",
     "loadTime": null,
     "issues": [
       "Load failed"
@@ -115,7 +109,7 @@
     "screenshots": []
   },
   {
-    "url": "https://app.gymadmin.club/inventaire",
+    "url": "https://facturation.laaraichi.com/recurring-invoices",
     "loadTime": null,
     "issues": [
       "Load failed"
@@ -124,7 +118,7 @@
     "screenshots": []
   },
   {
-    "url": "https://app.gymadmin.club/ventes",
+    "url": "https://facturation.laaraichi.com/dashboard_financier",
     "loadTime": null,
     "issues": [
       "Load failed"
@@ -133,7 +127,160 @@
     "screenshots": []
   },
   {
-    "url": "https://app.gymadmin.club/settings",
+    "url": "https://facturation.laaraichi.com/users",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/roles",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/company-settings",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/alerts",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/scanner-settings",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/audit-logs",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/database-backup",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/change-password",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/clients/add",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/clients/edit/6",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/clients/delete/6",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/clients/edit/5",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/clients/delete/5",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/clients/edit/4",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/clients/delete/4",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/clients/edit/1",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/fournisseurs/add",
+    "loadTime": null,
+    "issues": [
+      "Load failed"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  },
+  {
+    "url": "https://facturation.laaraichi.com/fournisseurs/edit?id=1",
     "loadTime": null,
     "issues": [
       "Load failed"

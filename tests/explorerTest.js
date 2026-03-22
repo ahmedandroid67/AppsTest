@@ -39,8 +39,8 @@ async function login(page) {
     await page.goto(BASE_URL);
     await page.waitForTimeout(2000);
 
-    // Try to find email field
-    const emailField = page.locator('#Input_Email, #email, input[type=email]').first();
+    // Try to find email/username field
+    const emailField = page.locator('#Input_Email, #email, #username, input[type=email], input[name=username]').first();
     const passField = page.locator('#Input_Password, #password, input[type=password]').first();
 
     if (!(await emailField.isVisible().catch(() => false))) {
@@ -60,7 +60,7 @@ async function login(page) {
 
     console.log('🚀 Submitting login...');
 
-    const submitBtn = page.locator('button[type=submit], button:has-text("Se connecter"), button:has-text("Login")').first();
+    const submitBtn = page.locator('button[type=submit], button:has-text("Se connecter"), button:has-text("Login"), .btn-primary').first();
     
     await Promise.all([
         page.waitForNavigation({ waitUntil: 'networkidle', timeout: 30000 }).catch(() => {}),
@@ -124,9 +124,10 @@ async function run() {
             pageResult.severity = 'warning';
         }
 
-        // 🤖 Perform actions
+        // 🤖 Perform actions and collect discovered links (from dropdowns/menus)
+        let discoveredLinks = [];
         try {
-            await clickButtons(page, pageResult);
+            discoveredLinks = await clickButtons(page, pageResult) || [];
         } catch (err) {
             console.log('⚠️ Action error');
             pageResult.issues.push('Action error');
@@ -155,11 +156,11 @@ async function run() {
             console.log('⚠️ UI analysis failed');
         }
 
-        // 🔗 Extract links
+        // 🔗 Extract regular links and merge with discovered ones
         let links = [];
         try {
-            // Pass the local visited set and the current base URL
-            links = await getLinks(page, BASE_URL, visited);
+            const pageLinks = await getLinks(page, BASE_URL, visited);
+            links = [...new Set([...pageLinks, ...discoveredLinks])];
         } catch (err) {
             console.log('⚠️ Link extraction failed:', err.message);
             pageResult.issues.push('Link extraction failed');

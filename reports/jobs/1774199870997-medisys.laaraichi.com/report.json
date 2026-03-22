@@ -1,0 +1,11 @@
+[
+  {
+    "url": "https://medisys.laaraichi.com/",
+    "loadTime": 743,
+    "issues": [
+      "Session lost"
+    ],
+    "severity": "critical",
+    "screenshots": []
+  }
+]
