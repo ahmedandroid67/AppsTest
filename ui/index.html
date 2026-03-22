@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -36,7 +37,8 @@
         }
 
         /* 🌌 Dynamic Background Elements */
-        body::before, body::after {
+        body::before,
+        body::after {
             content: '';
             position: absolute;
             width: 50vw;
@@ -62,8 +64,15 @@
         }
 
         @keyframes pulse {
-            0% { transform: scale(1); opacity: 0.1; }
-            100% { transform: scale(1.2); opacity: 0.2; }
+            0% {
+                transform: scale(1);
+                opacity: 0.1;
+            }
+
+            100% {
+                transform: scale(1.2);
+                opacity: 0.2;
+            }
         }
 
         /* ✨ Glassmorphism Card */
@@ -180,9 +189,17 @@
             transition: all 0.3s ease;
         }
 
-        .status-running { color: var(--primary); }
-        .status-success { color: var(--success); }
-        .status-error { color: var(--error); }
+        .status-running {
+            color: var(--primary);
+        }
+
+        .status-success {
+            color: var(--success);
+        }
+
+        .status-error {
+            color: var(--error);
+        }
 
         /* 🌀 Loading Spinner */
         .spinner {
@@ -196,7 +213,9 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         /* 📊 Reports Link */
@@ -217,9 +236,9 @@
         .footer-links a:hover {
             color: var(--primary);
         }
-
     </style>
 </head>
+
 <body>
 
     <div class="container">
@@ -230,17 +249,17 @@
 
         <div class="input-group">
             <label for="url">TARGET APPLICATION URL</label>
-            <input id="url" type="url" placeholder="https://example.com" value="https://medisys.laaraichi.com/">
+            <input id="url" type="url" placeholder="https://example.com" value="">
         </div>
 
         <div class="input-group">
             <label for="email">ADMIN EMAIL</label>
-            <input id="email" type="email" placeholder="admin@company.com" value="medecin@gmail.com">
+            <input id="email" type="email" placeholder="admin@company.com" value="">
         </div>
 
         <div class="input-group">
             <label for="password">ACCESS PASSWORD</label>
-            <input id="password" type="password" placeholder="••••••••" value="admin123">
+            <input id="password" type="password" placeholder="••••••••" value="">
         </div>
 
         <button id="start-btn" onclick="startTest()">
@@ -300,4 +319,5 @@
     </script>
 
 </body>
+
 </html>
