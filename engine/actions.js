@@ -13,182 +13,157 @@ async function takeScreenshot(page, name) {
 }
 
 // ============================================================
-// 🗂️ SPA SIDEBAR DISCOVERY (PROMPT-DRIVEN)
+// 🗂️ SPA SIDEBAR DISCOVERY
 // ============================================================
 async function discoverSpaMenuLinks(page) {
     const discovered = new Set();
     const startUrl = page.url();
 
-    // 1. Find all parent menu buttons (usually have an icon or chevron)
-    // We target anything in the sidebar area that looks like a toggle
-    const sidebarArea = await page.$('aside, nav, [class*="sidebar"], [class*="menu"]');
-    if (!sidebarArea) {
-        console.log('   ℹ️ No sidebar container detected — normal page scan mode');
-        return [];
-    }
+    // Aggressive sidebar search
+    const sidebar = await page.$('aside, nav, [class*="sidebar"], [class*="menu"], .sidebar-wrapper');
+    if (!sidebar) return [];
 
-    const buttons = await sidebarArea.$$('button, [role="button"], .menu-toggle, .nav-item');
-    console.log(`   🗂️ Probing ${buttons.length} potential sidebar elements...`);
+    const buttons = await sidebar.$$('button, [role="button"], .nav-item, .menu-item');
+    console.log(`   🗂️ Probing ${buttons.length} sidebar element(s)...`);
 
-    for (const btn of buttons) {
+    // Use indices to avoid stale handles
+    for (let i = 0; i < buttons.length; i++) {
         try {
-            const isVisible = await btn.isVisible().catch(() => false);
-            if (!isVisible) continue;
-
-            const text = (await btn.innerText().catch(() => '')).trim();
-            // Skip buttons that are likely already sub-links
+            // Re-acquire sidebar and buttons to stay fresh
+            const freshSidebar = await page.$('aside, nav, [class*="sidebar"], [class*="menu"]');
+            const freshBtns = await freshSidebar.$$('button, [role="button"], .nav-item, .menu-item');
+            const btn = freshBtns[i];
+            
+            if (!await btn.isVisible()) continue;
+            const text = (await btn.innerText()).trim();
             if (!text) continue;
 
-            // Click to ensure expansion (Vue v-if/v-show)
             await btn.click({ timeout: 2000 }).catch(() => {});
-            await page.waitForTimeout(600);
+            await page.waitForTimeout(500);
 
-            // Harvest ANY <a> that is now visible in the whole sidebar area
-            const links = await sidebarArea.$$('a');
+            // Scrape discovered links
+            const links = await freshSidebar.$$('a');
             for (const link of links) {
-                const linkText = (await link.innerText().catch(() => '')).trim();
-                if (!linkText) continue;
-
-                // Check if it's a JS-driven link (href="#" or no href)
+                const linkText = (await link.innerText()).trim();
                 const href = await link.getAttribute('href').catch(() => null);
                 
-                // Only "probe" if it looks like a sub-menu item (href="#" is the giveaway)
                 if (href === '#' || !href) {
-                    const urlBefore = page.url();
-                    
-                    // Click it!
+                    const before = page.url();
                     await link.click({ timeout: 3000 }).catch(() => {});
-                    await page.waitForTimeout(1000); // Allow route change
+                    await page.waitForTimeout(800);
+                    const after = page.url();
                     
-                    const urlAfter = page.url();
-                    if (urlAfter && urlAfter !== urlBefore) {
-                        console.log(`      ✅ Sub-link "${linkText}" → ${urlAfter}`);
-                        discovered.add(urlAfter);
-                        
-                        // Go back to start to continue discovery
-                        await page.goto(startUrl, { timeout: 10000, waitUntil: 'networkidle' }).catch(() => {});
-                        await page.waitForTimeout(500);
-                        
-                        // Re-click the parent button to re-reveal the list (if navigation collapsed it)
-                        await btn.click({ timeout: 1000 }).catch(() => {});
+                    if (after !== before) {
+                        console.log(`      ✅ "${linkText}" → ${after}`);
+                        discovered.add(after);
+                        await page.goto(startUrl, { waitUntil: 'networkidle' }).catch(() => {});
+                        // Re-expand the parent
+                        const reSidebar = await page.$('aside, nav, [class*="sidebar"]');
+                        const reBtns = await reSidebar.$$('button, [role="button"], .nav-item');
+                        await reBtns[i].click().catch(() => {});
                         await page.waitForTimeout(300);
                     }
                 } else if (href && !href.startsWith('javascript:')) {
-                    // It's a real link, just add it to discovered
-                    const fullUrl = new URL(href, startUrl).href;
-                    discovered.add(fullUrl);
+                    discovered.add(new URL(href, startUrl).href);
                 }
             }
-        } catch (err) {
-            // Silently continue through sidebar probes
-        }
+        } catch (e) { }
     }
-
     return Array.from(discovered);
 }
 
 // ============================================================
-// 🖱️ MAIN BUTTON / ACTION CLICKER
+// 🖱️ MAIN ACTION ENGINE
 // ============================================================
 async function clickButtons(page, pageResult) {
     const discoveredLinks = new Set();
-    const currentUrl = page.url();
+    const beforeUrl = page.url();
 
-    // ── Pre-check: Is this a dashboard/main page with a sidebar? ──
-    // If so, do the thorough sidebar expansion first
-    if (currentUrl.includes('dashboard') || currentUrl.includes('home') || (await page.$('aside, nav'))) {
+    // 1. Sidebar Discovery (only if we appear to be on a main app page)
+    if (await page.$('aside, nav, [class*="sidebar"]')) {
         try {
-            const sidebarLinks = await discoverSpaMenuLinks(page);
-            sidebarLinks.forEach(l => discoveredLinks.add(l));
-        } catch (err) {
-            console.log('⚠️ Sidebar discovery warning:', err.message);
-        }
+            const spaLinks = await discoverSpaMenuLinks(page);
+            spaLinks.forEach(l => discoveredLinks.add(l));
+        } catch (err) { }
     }
 
-    // ── MAIN INTERACTIVE ELEMENTS ──
-    // Broadened to include <a> with no href or href="#" (typical SPA buttons)
+    // 2. Page Actions Loop (Self-Healing)
     const interactiveSelectors = [
-        'button',
-        'a[href="#"]',
-        'a:not([href])',
-        '.btn',
-        '[role="button"]',
-        '[role="link"]',
-        '[role="menuitem"]',
-        '.v-list-item',
-        '.nav-link'
+        'button', 'a[href="#"]', 'a:not([href])', '.btn',
+        '[role="button"]', '[role="link"]', '.v-list-item'
     ];
 
-    const seenTexts = new Set();
-    const buttonsToClick = [];
+    // We identify buttons by index + text to handle re-acquisition
+    let actionIndex = 0;
+    let maxActions = 50; // Safety cap
 
-    // Find all potential interactive things
-    for (const sel of interactiveSelectors) {
+    while (actionIndex < maxActions) {
         try {
-            const els = await page.$$(sel);
-            for (const el of els) {
-                const text = (await el.innerText().catch(() => '')).trim().toLowerCase();
-                const visible = await el.isVisible().catch(() => false);
-                
-                // Deduplicate by text so we don't click the same "Save" button 5 times if found by different selectors
-                if (text && visible && !seenTexts.has(text)) {
-                    seenTexts.add(text);
-                    buttonsToClick.push({ el, text });
-                }
-            }
-        } catch { }
-    }
+            // RE-ACQUIRE all potential elements on every iteration (Prevents Stale Handles)
+            const allElements = await page.$$(interactiveSelectors.join(', '));
+            
+            if (actionIndex >= allElements.length) break;
 
-    const DANGEROUS = [
-        'logout', 'log out', 'sign out', 'signout', 'déconnexion', 'deconnexion',
-        'delete', 'remove', 'supprimer', 'quitter', 'dark', 'light'
-    ];
+            const el = allElements[actionIndex];
+            const text = (await el.innerText().catch(() => '')).trim().toLowerCase();
+            const visible = await el.isVisible().catch(() => false);
 
-    const ACTION_KEYWORDS = ['enregistrer', 'confirmer', 'ajouter', 'créer', 'submit', 'valider', 'mettre à jour', 'sauvegarder'];
-
-    for (const { el, text } of buttonsToClick) {
-        try {
-            if (DANGEROUS.some(d => text.includes(d))) continue;
-
-            // 🤖 Auto-fill forms for submit-like buttons
-            if (ACTION_KEYWORDS.some(k => text.includes(k))) {
-                const inputs = await page.$$('input:not([type="hidden"]), textarea, select');
-                for (const input of inputs) {
-                    try {
-                        if (await input.isVisible()) {
-                            const val = await input.inputValue().catch(() => '');
-                            if (!val) await input.fill('TestAuto');
-                        }
-                    } catch { }
-                }
+            if (!text || !visible || text.includes('logout') || text.includes('déconnexion')) {
+                actionIndex++;
+                continue;
             }
 
-            const beforeUrl = page.url();
+            // Skip sidebar buttons in this generic loop to avoid redundant re-discovery
+            const isSidebarItem = await el.evaluate(node => !!node.closest('aside, nav, .sidebar'));
+            if (isSidebarItem) {
+                actionIndex++;
+                continue;
+            }
+
             console.log('👉 Action:', text);
 
-            await el.click({ timeout: 4000 });
-            await page.waitForTimeout(1000);
-
-            const afterUrl = page.url();
-
-            // Record navigation if it happened
-            if (afterUrl !== beforeUrl) {
-                discoveredLinks.add(afterUrl);
-                console.log('   ✅ Navigated to:', afterUrl);
-                // Return to previous page to continue clicking other buttons on this original page
-                await page.goto(beforeUrl, { waitUntil: 'networkidle', timeout: 10000 }).catch(() => {});
+            // 🤖 Auto-fill forms if this looks like a submit
+            const ACTION_KEYWORDS = ['enregistrer', 'confirmer', 'ajouter', 'créer', 'submit', 'valider', 'sauvegarder'];
+            if (ACTION_KEYWORDS.some(k => text.includes(k))) {
+                await page.evaluate(() => {
+                    document.querySelectorAll('input:not([type="hidden"]), textarea').forEach(i => {
+                        if (!i.value) i.value = 'TestAuto';
+                        i.dispatchEvent(new Event('input', { bubbles: true }));
+                    });
+                });
             }
 
-            // 🔍 Analyze UI for errors after the action
-            const { errors } = await analyzeUI(page);
-            if (errors.length > 0) {
-                const screenshot = await takeScreenshot(page, 'ui-error');
-                pageResult.screenshots.push(screenshot);
-                pageResult.issues.push(...errors);
+            const urlBeforeClick = page.url();
+            const domHashBefore = await page.evaluate(() => document.body.innerHTML.length);
+
+            await el.click({ timeout: 5000 }).catch(() => {});
+            await page.waitForTimeout(1200); // Allow SPA / CSS transitions
+
+            const urlAfterClick = page.url();
+            const domHashAfter = await page.evaluate(() => document.body.innerHTML.length);
+
+            // 🔍 DETECTION: Did something happen?
+            if (urlAfterClick !== urlBeforeClick) {
+                console.log('   ✅ Navigated to:', urlAfterClick);
+                discoveredLinks.add(urlAfterClick);
+                
+                // CRITICAL: Return to original state to probe next button
+                await page.goto(beforeUrl, { waitUntil: 'networkidle', timeout: 15000 }).catch(() => {});
+                await page.waitForTimeout(800);
+            } else if (Math.abs(domHashAfter - domHashBefore) > 100) {
+                // DOM changed significantly (likely a modal or expansion)
+                console.log('   ✨ Interaction triggered UI change (modal/expansion)');
+                const { errors } = await analyzeUI(page);
+                if (errors.length > 0) {
+                    pageResult.issues.push(...errors);
+                    pageResult.screenshots.push(await takeScreenshot(page, 'action-ui-error'));
+                }
             }
+
+            actionIndex++;
 
         } catch (err) {
-            // Action failed or timed out — move to next
+            actionIndex++; // Skip failing elements
         }
     }
 
