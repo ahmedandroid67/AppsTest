@@ -1,0 +1,74 @@
+[
+  {
+    "tag": "DIV",
+    "class": "security-item-dark",
+    "id": "",
+    "ariaExpanded": null,
+    "text": "Session sécurisée",
+    "hasUL": false,
+    "hasA": false,
+    "childCount": 2
+  },
+  {
+    "tag": "DIV",
+    "class": "security-item-dark",
+    "id": "",
+    "ariaExpanded": null,
+    "text": "Expire dans 1439 min",
+    "hasUL": false,
+    "hasA": false,
+    "childCount": 2
+  },
+  {
+    "tag": "DIV",
+    "class": "security-item-dark",
+    "id": "",
+    "ariaExpanded": null,
+    "text": "Dernière connexion: 12:16",
+    "hasUL": false,
+    "hasA": false,
+    "childCount": 2
+  },
+  {
+    "tag": "DIV",
+    "class": "activity-item-dark",
+    "id": "",
+    "ariaExpanded": null,
+    "text": "Nouvel employé ajouté\nAucun nouvel employé récemment\nIl y a ",
+    "hasUL": false,
+    "hasA": false,
+    "childCount": 2
+  },
+  {
+    "tag": "DIV",
+    "class": "activity-item-dark",
+    "id": "",
+    "ariaExpanded": null,
+    "text": "Paie approuvée\nPaie du mois en cours\nIl y a quelques heures",
+    "hasUL": false,
+    "hasA": false,
+    "childCount": 2
+  },
+  {
+    "tag": "DIV",
+    "class": "activity-item-dark",
+    "id": "",
+    "ariaExpanded": null,
+    "text": "Demandes de congé\nConsultez les nouvelles demandes\nVoir les ",
+    "hasUL": false,
+    "hasA": true,
+    "aHref": "https://sirh.laaraichi.com/dashboard#",
+    "childCount": 2
+  },
+  {
+    "tag": "DIV",
+    "class": "activity-item-dark",
+    "id": "",
+    "ariaExpanded": null,
+    "text": "Notes de frais soumises\nConsultez les nouvelles notes\nVoir l",
+    "hasUL": false,
+    "hasA": true,
+    "aHref": "https://sirh.laaraichi.com/dashboard#",
+    "childCount": 2
+  }
+]
